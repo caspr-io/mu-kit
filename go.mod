@@ -1,4 +1,4 @@
-module gitlab.com/caspr.io/mu-kit
+module github.com/caspr-io/mu-kit
 
 go 1.13
 
