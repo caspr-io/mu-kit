@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"net"
 
+	"github.com/caspr-io/mu-kit/rpc"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"github.com/caspr-io/mu-kit/rpc"
 	"google.golang.org/grpc"
 )
 
@@ -23,7 +23,7 @@ type MuServer struct {
 
 func New() (*MuServer, error) {
 	config := MuServerConfig{}
-	logger := log.Logger.With().Str("component", "mu-server").Logger()
+	logger := log.Logger.With().Str("component", "µ-server").Logger()
 	err := envconfig.Process("MUKIT", &config)
 	if err != nil {
 		return nil, err
@@ -37,11 +37,11 @@ func (s *MuServer) Register(service rpc.Service) {
 }
 
 func (s *MuServer) Run() {
-	s.logger.Info().Msg("Starting Mu-Kit Grpc server...")
+	s.logger.Info().Msg("Starting µ-Kit Grpc server...")
 	address := fmt.Sprintf(":%d", s.config.GrpcPort)
 	grpcListener, err := net.Listen("tcp", address)
 	if err != nil {
-		s.logger.Fatal().Err(err).Msg("Cannot start Mu-Kit listener")
+		s.logger.Fatal().Err(err).Msg("Cannot start µ-Kit listener")
 	}
 	err = s.grpcServer.Serve(grpcListener)
 	if err != nil {
