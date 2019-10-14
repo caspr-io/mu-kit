@@ -8,6 +8,10 @@ type (
 	RpcService struct {
 		ServiceDescriptor grpc.ServiceDesc
 	}
+
+	Service interface {
+		RPCServiceDesc() *grpc.ServiceDesc
+	}
 )
 
 func (s RpcService) RPCServiceDesc() *grpc.ServiceDesc {

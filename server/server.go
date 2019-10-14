@@ -32,7 +32,7 @@ func New() (*MuServer, error) {
 	return &MuServer{grpcServer: grpc.NewServer(), config: config, logger: logger}, nil
 }
 
-func (s *MuServer) Register(service *rpc.RpcService) {
+func (s *MuServer) Register(service rpc.Service) {
 	s.grpcServer.RegisterService(service.RPCServiceDesc(), service)
 }
 
