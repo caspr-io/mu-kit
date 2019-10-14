@@ -7,7 +7,7 @@ import (
 	"github.com/kelseyhightower/envconfig"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"gitlab.com/caspr.io/mu-kit/rpc"
+	"github.com/caspr-io/mu-kit/rpc"
 	"google.golang.org/grpc"
 )
 
