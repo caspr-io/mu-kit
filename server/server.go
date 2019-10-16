@@ -37,14 +37,19 @@ func (s *MuServer) Register(service rpc.Service) {
 }
 
 func (s *MuServer) Run() {
-	s.logger.Info().Msg("Starting µ-Kit Grpc server...")
 	address := fmt.Sprintf(":%d", s.config.GrpcPort)
-	grpcListener, err := net.Listen("tcp", address)
+	listener, err := net.Listen("tcp", address)
 	if err != nil {
 		s.logger.Fatal().Err(err).Msg("Cannot start µ-Kit listener")
 	}
-	err = s.grpcServer.Serve(grpcListener)
+
+	s.RunWithListener(listener)
+}
+
+func (s *MuServer) RunWithListener(listener net.Listener) {
+	s.logger.Info().Msg("Starting µ-Kit gRPC server...")
+	err := s.grpcServer.Serve(listener)
 	if err != nil {
-		s.logger.Fatal().Err(err).Msg("Cannot serve Mu-Kit server")
+		s.logger.Fatal().Err(err).Msg("Cannot serve µ-Kit server")
 	}
 }
