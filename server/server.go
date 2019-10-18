@@ -24,8 +24,7 @@ type MuServer struct {
 func New() (*MuServer, error) {
 	config := MuServerConfig{}
 	logger := log.Logger.With().Str("component", "µ-server").Logger()
-	err := envconfig.Process("MUKIT", &config)
-	if err != nil {
+	if err := envconfig.Process("MUKIT", &config); err != nil {
 		return nil, err
 	}
 	logger.Info().Interface("config", config).Send()
