@@ -20,11 +20,14 @@ func PatchEnvFromFile(envfile string) func() {
 		}
 		return PatchEnv(patchEnv)
 	} else {
-		return func() {}
+		return PatchEnv(nil)
 	}
 }
 
 func PatchEnv(envMap map[string]string) func() {
+	if len(envMap) == 0 {
+		return func() {}
+	}
 	oldEnv := os.Environ()
 
 	setEnv(envMap)
