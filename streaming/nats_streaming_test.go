@@ -11,7 +11,6 @@ import (
 
 	"github.com/kelseyhightower/envconfig"
 	"github.com/nats-io/stan.go"
-	"github.com/rs/zerolog"
 	"gotest.tools/v3/assert"
 
 	"github.com/caspr-io/mu-kit/kit"
@@ -74,9 +73,6 @@ var lastClientId int64
 
 func init() {
 	kit.Init()
-	zerolog.TimestampFieldName = "t"
-	zerolog.LevelFieldName = "l"
-	zerolog.MessageFieldName = "m"
 
 	rand.Seed(time.Now().UnixNano())
 	baseId = "nats_streaming_test-" + strconv.Itoa(os.Getpid()) + "-"

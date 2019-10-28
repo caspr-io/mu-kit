@@ -10,4 +10,7 @@ import (
 // Initizalize the Mu-Kit environment
 func Init() {
 	log.Logger = zerolog.New(os.Stdout).With().Timestamp().Logger()
+	zerolog.TimestampFieldName = "t"
+	zerolog.LevelFieldName = "l"
+	zerolog.MessageFieldName = "m"
 }

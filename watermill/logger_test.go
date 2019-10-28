@@ -9,6 +9,8 @@ import (
 	"github.com/rs/zerolog"
 	"gotest.tools/v3/assert"
 	is "gotest.tools/v3/assert/cmp"
+
+	"github.com/caspr-io/mu-kit/kit"
 )
 
 func Not(c is.Comparison) is.Comparison {
@@ -28,7 +30,7 @@ func TestShouldLogDebug(t *testing.T) {
 	assert.Assert(t, is.Contains(b.String(), "\"l\":\"debug\""))
 	assert.Assert(t, Not(is.Contains(b.String(), "\"foo\":\"bar\"")))
 	assert.Assert(t, Not(is.Contains(b.String(), "\"trace\":\"true\"")))
-	assert.Assert(t, is.Contains(b.String(), "\"msg\":\"testing message\""))
+	assert.Assert(t, is.Contains(b.String(), "\"m\":\"testing message\""))
 }
 
 func TestShouldLogDebugWithExtraFields(t *testing.T) {
@@ -37,7 +39,7 @@ func TestShouldLogDebugWithExtraFields(t *testing.T) {
 	l.Debug("testing message", fields)
 	assert.Assert(t, is.Contains(b.String(), "\"l\":\"debug\""))
 	assert.Assert(t, is.Contains(b.String(), "\"foo\":\"bar\""))
-	assert.Assert(t, is.Contains(b.String(), "\"msg\":\"testing message\""))
+	assert.Assert(t, is.Contains(b.String(), "\"m\":\"testing message\""))
 }
 
 func TestShouldLogWithFields(t *testing.T) {
@@ -47,7 +49,7 @@ func TestShouldLogWithFields(t *testing.T) {
 	zl.Debug("testing message", nil)
 	assert.Assert(t, is.Contains(b.String(), "\"l\":\"debug\""))
 	assert.Assert(t, is.Contains(b.String(), "\"foo\":\"bar\""))
-	assert.Assert(t, is.Contains(b.String(), "\"msg\":\"testing message\""))
+	assert.Assert(t, is.Contains(b.String(), "\"m\":\"testing message\""))
 
 }
 
@@ -56,7 +58,7 @@ func TestShouldLogTrace(t *testing.T) {
 	l.Trace("testing message", nil)
 	assert.Assert(t, is.Contains(b.String(), "\"l\":\"debug\""))
 	assert.Assert(t, is.Contains(b.String(), "\"trace\":\"true\""))
-	assert.Assert(t, is.Contains(b.String(), "\"msg\":\"testing message\""))
+	assert.Assert(t, is.Contains(b.String(), "\"m\":\"testing message\""))
 }
 
 func TestShouldLogInfo(t *testing.T) {
@@ -64,7 +66,7 @@ func TestShouldLogInfo(t *testing.T) {
 	l.Info("testing message", nil)
 	assert.Assert(t, is.Contains(b.String(), "\"l\":\"info\""))
 	assert.Assert(t, Not(is.Contains(b.String(), "\"trace\":\"true\"")))
-	assert.Assert(t, is.Contains(b.String(), "\"msg\":\"testing message\""))
+	assert.Assert(t, is.Contains(b.String(), "\"m\":\"testing message\""))
 
 }
 func TestShouldLogError(t *testing.T) {
@@ -73,7 +75,7 @@ func TestShouldLogError(t *testing.T) {
 	assert.Assert(t, is.Contains(b.String(), "\"l\":\"error\""))
 	assert.Assert(t, is.Contains(b.String(), "\"error\":\"testing error\""))
 	assert.Assert(t, Not(is.Contains(b.String(), "\"trace\":\"true\"")))
-	assert.Assert(t, is.Contains(b.String(), "\"msg\":\"testing message\""))
+	assert.Assert(t, is.Contains(b.String(), "\"m\":\"testing message\""))
 }
 
 func TestShouldNotLogTraceIfDisabled(t *testing.T) {
@@ -84,9 +86,8 @@ func TestShouldNotLogTraceIfDisabled(t *testing.T) {
 }
 
 func InitTest() (*strings.Builder, *ZeroLogger) {
+	kit.Init()
 	b := strings.Builder{}
-	zerolog.LevelFieldName = "l"
-	zerolog.MessageFieldName = "msg"
 	l := zerolog.New(&b)
 	zl := ZeroLogger{true, &l}
 	return &b, &zl
