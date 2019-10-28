@@ -111,14 +111,14 @@ func getSubject(t *testing.T) string {
 	return baseId + t.Name()
 }
 
-func publish(t *testing.T, sc stan.Conn, subject string, message string) {
-	err := sc.Publish(subject, []byte(message))
+func publish(t *testing.T, sc stan.Conn, subject string, payload string) {
+	err := sc.Publish(subject, []byte(payload))
 	assert.NilError(t, err)
 }
 
-func subscribeAndReceive(t *testing.T, sc stan.Conn, subject string, message string, wg *sync.WaitGroup, opts ...stan.SubscriptionOption) stan.Subscription {
+func subscribeAndReceive(t *testing.T, sc stan.Conn, subject string, expectedPayload string, wg *sync.WaitGroup, opts ...stan.SubscriptionOption) stan.Subscription {
 	subs, err := sc.Subscribe(subject, func(m *stan.Msg) {
-		if string(m.Data) == message {
+		if string(m.Data) == expectedPayload {
 			wg.Done()
 		}
 	}, opts...)
