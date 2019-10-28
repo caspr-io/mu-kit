@@ -15,11 +15,11 @@ import (
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/nats-io/stan.go"
-	"github.com/rs/zerolog"
 	"gotest.tools/v3/assert"
 
 	"github.com/caspr-io/mu-kit/kit"
 	mutest "github.com/caspr-io/mu-kit/test"
+	muwatermill "github.com/caspr-io/mu-kit/watermill"
 )
 
 func TestDoNotReceiveMessagePublishedBeforeSubscribed(t *testing.T) {
@@ -79,9 +79,6 @@ var lastClientId int64
 
 func init() {
 	kit.Init()
-	zerolog.TimestampFieldName = "t"
-	zerolog.LevelFieldName = "l"
-	zerolog.MessageFieldName = "m"
 
 	rand.Seed(time.Now().UnixNano())
 	baseId = "nats_streaming_test-" + strconv.Itoa(os.Getpid()) + "-"
@@ -121,7 +118,7 @@ func publish(t *testing.T, sc stan.Conn, subject string, payload string) {
 		nats.StreamingPublisherPublishConfig{
 			Marshaler: nats.GobMarshaler{},
 		},
-		watermill.NewStdLogger(false, false),
+		muwatermill.NewZerologLogger(),
 	)
 	assert.NilError(t, err)
 
@@ -138,7 +135,7 @@ func subscribeAndReceive(t *testing.T, sc stan.Conn, subject string, expectedPay
 			CloseTimeout:     time.Second * 30,
 			Unmarshaler:      nats.GobMarshaler{},
 		},
-		watermill.NewStdLogger(false, false),
+		muwatermill.NewZerologLogger(),
 	)
 	assert.NilError(t, err)
 
