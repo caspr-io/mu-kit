@@ -1,8 +1,11 @@
 package watermill
 
 import (
+	"github.com/caspr-io/mu-kit/kit"
+
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 type ZeroLogger struct {
@@ -28,12 +31,12 @@ func (l *ZeroLogger) Trace(msg string, fields watermill.LogFields) {
 	}
 }
 
-func (l *ZeroLogger) With(fields watermill.LogFields) ZeroLogger {
+func (l *ZeroLogger) With(fields watermill.LogFields) watermill.LoggerAdapter {
 	if fields == nil || len(fields) == 0 {
-		return *l
+		return l
 	}
 	newLogger := withFields(l.logger, fields)
-	return ZeroLogger{logger: newLogger}
+	return &ZeroLogger{logger: newLogger}
 }
 
 func withFields(logger *zerolog.Logger, fields watermill.LogFields) *zerolog.Logger {
@@ -47,4 +50,9 @@ func withFields(logger *zerolog.Logger, fields watermill.LogFields) *zerolog.Log
 	}
 	newLogger := loggerBuilder.Logger()
 	return &newLogger
+}
+
+func NewZerologLogger() watermill.LoggerAdapter {
+	kit.Init()
+	return &ZeroLogger{true, &log.Logger}
 }
