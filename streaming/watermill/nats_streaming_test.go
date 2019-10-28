@@ -131,6 +131,7 @@ func subscribeAndReceive(t *testing.T, sc stan.Conn, subject string, expectedPay
 		nats.StreamingSubscriberSubscriptionConfig{
 			// SubscribersCount and CloseTimeout need to be set explicitly.
 			// `nats.NewStreamingSubscriber` will set default values, but `nats.NewStreamingSubscriberWithStanConn` won't.
+			// Can be removed when https://github.com/ThreeDotsLabs/watermill-nats/pull/4 is accepted
 			SubscribersCount: 1,
 			CloseTimeout:     time.Second * 30,
 			Unmarshaler:      nats.GobMarshaler{},
