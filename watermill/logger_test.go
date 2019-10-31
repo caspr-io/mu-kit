@@ -18,9 +18,9 @@ func Not(c is.Comparison) is.Comparison {
 		r := c()
 		if r.Success() {
 			return is.ResultFailure("Failed due to success")
-		} else {
-			return is.ResultSuccess
 		}
+
+		return is.ResultSuccess
 	}
 }
 
@@ -50,7 +50,6 @@ func TestShouldLogWithFields(t *testing.T) {
 	assert.Assert(t, is.Contains(b.String(), "\"l\":\"debug\""))
 	assert.Assert(t, is.Contains(b.String(), "\"foo\":\"bar\""))
 	assert.Assert(t, is.Contains(b.String(), "\"m\":\"testing message\""))
-
 }
 
 func TestShouldLogTrace(t *testing.T) {
@@ -67,7 +66,6 @@ func TestShouldLogInfo(t *testing.T) {
 	assert.Assert(t, is.Contains(b.String(), "\"l\":\"info\""))
 	assert.Assert(t, Not(is.Contains(b.String(), "\"trace\":\"true\"")))
 	assert.Assert(t, is.Contains(b.String(), "\"m\":\"testing message\""))
-
 }
 func TestShouldLogError(t *testing.T) {
 	b, l := InitTest()
@@ -87,8 +85,10 @@ func TestShouldNotLogTraceIfDisabled(t *testing.T) {
 
 func InitTest() (*strings.Builder, *ZeroLogger) {
 	kit.Init()
+
 	b := strings.Builder{}
 	l := zerolog.New(&b)
 	zl := ZeroLogger{true, &l}
+
 	return &b, &zl
 }

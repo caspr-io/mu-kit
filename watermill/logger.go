@@ -35,7 +35,9 @@ func (l *ZeroLogger) With(fields watermill.LogFields) watermill.LoggerAdapter {
 	if fields == nil || len(fields) == 0 {
 		return l
 	}
+
 	newLogger := withFields(l.logger, fields)
+
 	return &ZeroLogger{logger: newLogger}
 }
 
@@ -48,7 +50,9 @@ func withFields(logger *zerolog.Logger, fields watermill.LogFields) *zerolog.Log
 	for k, v := range fields {
 		loggerBuilder = loggerBuilder.Interface(k, v)
 	}
+
 	newLogger := loggerBuilder.Logger()
+
 	return &newLogger
 }
 
