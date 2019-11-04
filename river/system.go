@@ -47,10 +47,10 @@ func New(logger *zerolog.Logger) (*System, error) {
 		return nil, err
 	}
 
-	return NewSystem(watermillLogger, config, subscriber, publisher)
+	return NewSystem(watermillLogger, subscriber, publisher)
 }
 
-func NewSystem(logger watermill.LoggerAdapter, config *SystemConfig, subscriber message.Subscriber, publisher message.Publisher) (*System, error) {
+func NewSystem(logger watermill.LoggerAdapter, subscriber message.Subscriber, publisher message.Publisher) (*System, error) {
 	router, err := NewRouter(context.Background(), publisher, subscriber, logger)
 	if err != nil {
 		return nil, err
