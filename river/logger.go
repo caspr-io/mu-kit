@@ -1,4 +1,4 @@
-package watermill
+package river
 
 import (
 	"github.com/caspr-io/mu-kit/kit"

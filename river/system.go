@@ -1,21 +1,19 @@
-package messaging
+package river
 
 import (
 	"context"
 
 	"github.com/ThreeDotsLabs/watermill"
-	"github.com/ThreeDotsLabs/watermill-nats/pkg/nats"
 	"github.com/ThreeDotsLabs/watermill/message"
-	mumill "github.com/caspr-io/mu-kit/watermill"
+	"github.com/gogo/protobuf/proto"
 	"github.com/kelseyhightower/envconfig"
-	"github.com/nats-io/stan.go"
 	"github.com/rs/zerolog"
 )
 
 type System struct {
 	subscriber message.Subscriber
 	publisher  message.Publisher
-	router     *mumill.MuRouter
+	router     *MuRouter
 }
 
 type SystemConfig struct {
@@ -33,18 +31,18 @@ func New(logger *zerolog.Logger) (*System, error) {
 
 	logger.Info().Interface("config", config).Msg("Initializing messaging system...")
 
-	watermillLogger := mumill.NewZerologLogger()
+	watermillLogger := NewZerologLogger()
 
 	logger.Info().Msg("Building NATS Subscriber...")
 
-	subscriber, err := NewNatsSubscriber(config, watermillLogger)
+	subscriber, err := newNatsSubscriber(config, watermillLogger)
 	if err != nil {
 		return nil, err
 	}
 
 	logger.Info().Msg("Building NATS Publisher...")
 
-	publisher, err := NewNatsPublisher(config, watermillLogger)
+	publisher, err := newNatsPublisher(config, watermillLogger)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +51,7 @@ func New(logger *zerolog.Logger) (*System, error) {
 }
 
 func NewSystem(logger watermill.LoggerAdapter, config *SystemConfig, subscriber message.Subscriber, publisher message.Publisher) (*System, error) {
-	router, err := mumill.NewRouter(context.Background(), publisher, subscriber, logger)
+	router, err := NewRouter(context.Background(), publisher, subscriber, logger)
 	if err != nil {
 		return nil, err
 	}
@@ -65,34 +63,10 @@ func NewSystem(logger watermill.LoggerAdapter, config *SystemConfig, subscriber 
 	}, nil
 }
 
-func NewNatsPublisher(config *SystemConfig, logger watermill.LoggerAdapter) (message.Publisher, error) {
-	publisher, err := nats.NewStreamingPublisher(nats.StreamingPublisherConfig{
-		ClusterID: config.NatsClusterID,
-		ClientID:  config.NatsClientID,
-		StanOptions: []stan.Option{
-			stan.NatsURL(config.NatsURL),
-		},
-	}, logger)
-	if err != nil {
-		return nil, err
-	}
-
-	return publisher, nil
+func (s *System) Publish(msg proto.Message) error {
+	return s.router.Publish(msg)
 }
 
-func NewNatsSubscriber(config *SystemConfig, logger watermill.LoggerAdapter) (message.Subscriber, error) {
-	subscriber, err := nats.NewStreamingSubscriber(nats.StreamingSubscriberConfig{
-		ClusterID:  config.NatsClusterID,
-		ClientID:   config.NatsClientID,
-		QueueGroup: config.NatsQueueGroup,
-		StanOptions: []stan.Option{
-			stan.NatsURL(config.NatsURL),
-		},
-		Unmarshaler: nats.GobMarshaler{},
-	}, logger)
-	if err != nil {
-		return nil, err
-	}
+func (s *System) Subscribe(m MuMessageHandler) {
 
-	return subscriber, nil
 }
