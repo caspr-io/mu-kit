@@ -5,6 +5,7 @@ go 1.13
 require (
 	github.com/ThreeDotsLabs/watermill v1.0.0
 	github.com/ThreeDotsLabs/watermill-nats v1.0.3
+	github.com/gogo/protobuf v1.2.1
 	github.com/golang/protobuf v1.3.2
 	github.com/joho/godotenv v1.3.0
 	github.com/kelseyhightower/envconfig v1.4.0
@@ -12,7 +13,6 @@ require (
 	github.com/nats-io/nats-streaming-server v0.16.2 // indirect
 	github.com/nats-io/stan.go v0.5.0
 	github.com/rs/zerolog v1.15.0
-	github.com/satori/go.uuid v1.2.0
 	github.com/satori/uuid v1.2.0
 	golang.org/x/net v0.0.0-20190628185345-da137c7871d7 // indirect
 	google.golang.org/genproto v0.0.0-20190716160619-c506a9f90610 // indirect
