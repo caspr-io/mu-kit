@@ -53,7 +53,7 @@ func New(logger *zerolog.Logger) (*System, error) {
 }
 
 func NewSystem(logger watermill.LoggerAdapter, config *SystemConfig, subscriber message.Subscriber, publisher message.Publisher) (*System, error) {
-	router, err := mumill.NewRouter(publisher, subscriber, context.Background(), logger)
+	router, err := mumill.NewRouter(context.Background(), publisher, subscriber, logger)
 	if err != nil {
 		return nil, err
 	}

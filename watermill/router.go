@@ -27,11 +27,10 @@ type MuMessageHandler interface {
 }
 
 func NewRouter(
+	context context.Context,
 	publisher message.Publisher,
 	subscriber message.Subscriber,
-	context context.Context,
 	logger watermill.LoggerAdapter) (*MuRouter, error) {
-
 	router, err := message.NewRouter(message.RouterConfig{}, logger)
 	if err != nil {
 		return nil, err
@@ -48,11 +47,11 @@ func NewRouter(
 		middleware.Recoverer,
 	)
 
-	// mup := &MuPublisher{publisher: publisher, topicName: DefaultTopicName}
-	// mus := &MuSubscriber{subscriber: subscriber, context: context, topicName: DefaultTopicName}
 	return &MuRouter{router, publisher, subscriber, context, DefaultTopicName}, nil
 }
 
+// Subscribe subscribes a MuMessageHandler to its specific topic and will call the Handle
+// function for each incoming deserialized message.
 func (r *MuRouter) Subscribe(mh MuMessageHandler) error {
 	m := mh.NewMsg()
 	topic := r.topicName(m)
@@ -74,6 +73,7 @@ func (r *MuRouter) Subscribe(mh MuMessageHandler) error {
 	return nil
 }
 
+// Publish publishes one or more messages on their respective topics.
 func (r *MuRouter) Publish(msgs ...proto.Message) error {
 	for _, msg := range msgs {
 		topic := r.topicName(msg)
