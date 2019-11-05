@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package river;
+
+message TestMessage {
+    string contents = 1;
+}

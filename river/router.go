@@ -91,3 +91,13 @@ func (r *MuRouter) Publish(msgs ...proto.Message) error {
 
 	return nil
 }
+
+// Start starts the MuRouter in the background using a go channel
+func (r *MuRouter) Start() {
+	go r.r.Run(r.context)
+	<-r.r.Running()
+}
+
+func (r *MuRouter) Close() error {
+	return r.r.Close()
+}
