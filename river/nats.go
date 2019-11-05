@@ -14,6 +14,7 @@ func newNatsPublisher(config *SystemConfig, logger watermill.LoggerAdapter) (mes
 		StanOptions: []stan.Option{
 			stan.NatsURL(config.NatsURL),
 		},
+		Marshaler: nats.GobMarshaler{},
 	}, logger)
 	if err != nil {
 		return nil, err
