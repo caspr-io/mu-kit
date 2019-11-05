@@ -1,10 +1,9 @@
-package server
+package rpc
 
 import (
 	"fmt"
 	"net"
 
-	"github.com/caspr-io/mu-kit/rpc"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -35,7 +34,7 @@ func New() (*MuServer, error) {
 	return &MuServer{grpcServer: grpc.NewServer(), config: config, logger: logger}, nil
 }
 
-func (s *MuServer) Register(service rpc.Service) {
+func (s *MuServer) Register(service Service) {
 	s.grpcServer.RegisterService(service.RPCServiceDesc(), service)
 }
 
