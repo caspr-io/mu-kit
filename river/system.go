@@ -27,16 +27,21 @@ func New(logger *zerolog.Logger, config *SubSystemConfig) (*SubSystem, error) {
 
 	watermillLogger := NewZerologLogger()
 
+	stanConn, err := connectToStan(config)
+	if err != nil {
+		return nil, err
+	}
+
 	logger.Info().Msg("Building NATS Subscriber...")
 
-	subscriber, err := newNatsSubscriber(config, watermillLogger)
+	subscriber, err := newNatsSubscriber(config, stanConn, watermillLogger)
 	if err != nil {
 		return nil, err
 	}
 
 	logger.Info().Msg("Building NATS Publisher...")
 
-	publisher, err := newNatsPublisher(config, watermillLogger)
+	publisher, err := newNatsPublisher(config, stanConn, watermillLogger)
 	if err != nil {
 		return nil, err
 	}

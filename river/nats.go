@@ -7,13 +7,18 @@ import (
 	"github.com/nats-io/stan.go"
 )
 
-func newNatsPublisher(config *SubSystemConfig, logger watermill.LoggerAdapter) (message.Publisher, error) {
-	publisher, err := nats.NewStreamingPublisher(nats.StreamingPublisherConfig{
-		ClusterID: config.NatsClusterID,
-		ClientID:  config.NatsClientID,
-		StanOptions: []stan.Option{
-			stan.NatsURL(config.NatsURL),
-		},
+func connectToStan(config *SubSystemConfig) (*stan.Conn, error) {
+	conn, err := stan.Connect(config.NatsClusterID, config.NatsClientID, stan.NatsURL(config.NatsURL))
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &conn, nil
+}
+
+func newNatsPublisher(config *SubSystemConfig, conn *stan.Conn, logger watermill.LoggerAdapter) (message.Publisher, error) {
+	publisher, err := nats.NewStreamingPublisherWithStanConn(*conn, nats.StreamingPublisherPublishConfig{
 		Marshaler: nats.GobMarshaler{},
 	}, logger)
 	if err != nil {
@@ -23,14 +28,9 @@ func newNatsPublisher(config *SubSystemConfig, logger watermill.LoggerAdapter) (
 	return publisher, nil
 }
 
-func newNatsSubscriber(config *SubSystemConfig, logger watermill.LoggerAdapter) (message.Subscriber, error) {
-	subscriber, err := nats.NewStreamingSubscriber(nats.StreamingSubscriberConfig{
-		ClusterID:  config.NatsClusterID,
-		ClientID:   config.NatsClientID,
-		QueueGroup: config.NatsQueueGroup,
-		StanOptions: []stan.Option{
-			stan.NatsURL(config.NatsURL),
-		},
+func newNatsSubscriber(config *SubSystemConfig, conn *stan.Conn, logger watermill.LoggerAdapter) (message.Subscriber, error) {
+	subscriber, err := nats.NewStreamingSubscriberWithStanConn(*conn, nats.StreamingSubscriberSubscriptionConfig{
+		QueueGroup:  config.NatsQueueGroup,
 		Unmarshaler: nats.GobMarshaler{},
 	}, logger)
 	if err != nil {

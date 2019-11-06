@@ -12,6 +12,7 @@ require (
 	github.com/nats-io/nats-server/v2 v2.1.0 // indirect
 	github.com/nats-io/nats-streaming-server v0.16.2 // indirect
 	github.com/nats-io/stan.go v0.5.0
+	github.com/pkg/errors v0.8.1
 	github.com/rs/zerolog v1.15.0
 	github.com/satori/uuid v1.2.0
 	golang.org/x/net v0.0.0-20190628185345-da137c7871d7 // indirect
