@@ -2,6 +2,7 @@ package kit
 
 import (
 	"os"
+	"strings"
 	"sync"
 
 	"github.com/caspr-io/mu-kit/river"
@@ -50,6 +51,7 @@ func readConfig(configPrefix string) error {
 
 func readConfigFromEnvironment(configPrefix string, config interface{}) func() error {
 	return func() error {
+		configPrefix = strings.ToUpper(strings.ReplaceAll(configPrefix, "-", "_"))
 		if err := envconfig.Process(configPrefix, config); err != nil {
 			return err
 		}
