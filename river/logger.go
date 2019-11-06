@@ -1,8 +1,6 @@
 package river
 
 import (
-	"github.com/caspr-io/mu-kit/kit"
-
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -57,6 +55,5 @@ func withFields(logger *zerolog.Logger, fields watermill.LogFields) *zerolog.Log
 }
 
 func NewZerologLogger() watermill.LoggerAdapter {
-	kit.Init()
 	return &ZeroLogger{true, &log.Logger}
 }

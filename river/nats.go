@@ -7,7 +7,7 @@ import (
 	"github.com/nats-io/stan.go"
 )
 
-func newNatsPublisher(config *SystemConfig, logger watermill.LoggerAdapter) (message.Publisher, error) {
+func newNatsPublisher(config *SubSystemConfig, logger watermill.LoggerAdapter) (message.Publisher, error) {
 	publisher, err := nats.NewStreamingPublisher(nats.StreamingPublisherConfig{
 		ClusterID: config.NatsClusterID,
 		ClientID:  config.NatsClientID,
@@ -23,7 +23,7 @@ func newNatsPublisher(config *SystemConfig, logger watermill.LoggerAdapter) (mes
 	return publisher, nil
 }
 
-func newNatsSubscriber(config *SystemConfig, logger watermill.LoggerAdapter) (message.Subscriber, error) {
+func newNatsSubscriber(config *SubSystemConfig, logger watermill.LoggerAdapter) (message.Subscriber, error) {
 	subscriber, err := nats.NewStreamingSubscriber(nats.StreamingSubscriberConfig{
 		ClusterID:  config.NatsClusterID,
 		ClientID:   config.NatsClientID,

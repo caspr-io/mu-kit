@@ -20,6 +20,7 @@ func (th *TestMessageHandler) NewMsg() proto.Message { return &TestMessage{} }
 func (th *TestMessageHandler) Handle(ctx context.Context, m proto.Message) error {
 	defer th.wg.Done()
 	th.messages = append(th.messages, *m.(*TestMessage))
+
 	return nil
 }
 

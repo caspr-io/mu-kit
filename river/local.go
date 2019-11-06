@@ -1,17 +1,16 @@
-package test
+package river
 
 import (
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
-	"github.com/caspr-io/mu-kit/river"
 )
 
-func NewTestRiver() (*river.System, error) {
-	logger := river.NewZerologLogger()
+func NewTestRiver() (*SubSystem, error) {
+	logger := NewZerologLogger()
 	pub, sub := goChannelPubSub(logger)
 
-	return river.NewSystem(logger, sub, pub)
+	return NewSubSystem(logger, sub, pub)
 }
 
 func goChannelPubSub(logger watermill.LoggerAdapter) (message.Publisher, message.Subscriber) {

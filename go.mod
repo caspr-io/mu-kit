@@ -17,5 +17,6 @@ require (
 	golang.org/x/net v0.0.0-20190628185345-da137c7871d7 // indirect
 	google.golang.org/genproto v0.0.0-20190716160619-c506a9f90610 // indirect
 	google.golang.org/grpc v1.22.0
+	gotest.tools v2.2.0+incompatible
 	gotest.tools/v3 v3.0.0
 )

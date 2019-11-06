@@ -5,7 +5,7 @@ import (
 )
 
 type (
-	RpcService struct {
+	RPCService struct {
 		ServiceDescriptor grpc.ServiceDesc
 	}
 
@@ -14,6 +14,6 @@ type (
 	}
 )
 
-func (s RpcService) RPCServiceDesc() *grpc.ServiceDesc {
+func (s RPCService) RPCServiceDesc() *grpc.ServiceDesc {
 	return &s.ServiceDescriptor
 }

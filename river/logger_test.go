@@ -9,8 +9,6 @@ import (
 	"github.com/rs/zerolog"
 	"gotest.tools/v3/assert"
 	is "gotest.tools/v3/assert/cmp"
-
-	"github.com/caspr-io/mu-kit/kit"
 )
 
 func Not(c is.Comparison) is.Comparison {
@@ -84,7 +82,9 @@ func TestShouldNotLogTraceIfDisabled(t *testing.T) {
 }
 
 func InitTest() (*strings.Builder, *ZeroLogger) {
-	kit.Init()
+	zerolog.TimestampFieldName = "t"
+	zerolog.LevelFieldName = "l"
+	zerolog.MessageFieldName = "m"
 
 	b := strings.Builder{}
 	l := zerolog.New(&b)

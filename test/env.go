@@ -20,6 +20,7 @@ func PatchEnvFromFile(envfile string) func() {
 		}
 		return PatchEnv(patchEnv)
 	} else {
+		log.Warn().Str("filename", envfile).Msg("Missing file...")
 		return PatchEnv(nil)
 	}
 }
