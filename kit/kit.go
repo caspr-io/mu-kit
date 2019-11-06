@@ -3,7 +3,6 @@ package kit
 import (
 	"os"
 	"strings"
-	"sync"
 
 	"github.com/caspr-io/mu-kit/river"
 	"github.com/caspr-io/mu-kit/rpc"
@@ -13,8 +12,6 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-var onceInit sync.Once
-var onceConfig sync.Once
 var Config *MuKitConfig
 
 type MuKitServer struct {
@@ -28,8 +25,8 @@ type MuKitConfig struct {
 }
 
 // Initizalize the Mu-Kit environment
-func initLogger() {
-	log.Logger = zerolog.New(os.Stdout).With().Timestamp().Logger()
+func initLogger(name string) {
+	log.Logger = zerolog.New(os.Stdout).With().Str("service", name).Timestamp().Logger()
 	zerolog.TimestampFieldName = "t"
 	zerolog.LevelFieldName = "l"
 	zerolog.MessageFieldName = "m"
@@ -38,13 +35,13 @@ func initLogger() {
 func readConfig(configPrefix string) error {
 	try := util.Try()
 
-	onceConfig.Do(func() {
-		rpcConfig := &rpc.SubSystemConfig{}
-		riverConfig := &river.SubSystemConfig{}
-		try.Try(readConfigFromEnvironment(configPrefix, rpcConfig))
-		try.Try(readConfigFromEnvironment(configPrefix, riverConfig))
-		Config = &MuKitConfig{rpcConfig: rpcConfig, riverConfig: riverConfig}
-	})
+	rpcConfig := &rpc.SubSystemConfig{}
+	riverConfig := &river.SubSystemConfig{}
+
+	try.Try(readConfigFromEnvironment(configPrefix, rpcConfig))
+	try.Try(readConfigFromEnvironment(configPrefix, riverConfig))
+
+	Config = &MuKitConfig{rpcConfig: rpcConfig, riverConfig: riverConfig}
 
 	return try.Error()
 }
@@ -59,10 +56,10 @@ func readConfigFromEnvironment(configPrefix string, config interface{}) func() e
 	}
 }
 
-func New(configPrefix string) (*MuKitServer, error) {
-	initLogger()
+func New(name string) (*MuKitServer, error) {
+	initLogger(name)
 
-	if err := readConfig(configPrefix); err != nil {
+	if err := readConfig(name); err != nil {
 		return nil, err
 	}
 
