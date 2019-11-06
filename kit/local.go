@@ -8,7 +8,7 @@ import (
 	"google.golang.org/grpc/test/bufconn"
 )
 
-func NewLocalTestKitServer(f func(*rpc.SubSystem, *river.SubSystem) rpc.RPCService) (*MuKitServer, *grpc.ClientConn) {
+func NewLocalTestKitServer(f func(*rpc.SubSystem, *river.SubSystem) rpc.Service) (*MuKitServer, *grpc.ClientConn) {
 	initLogger()
 	log.Logger.Info().Msg("Starting local µ-Kit server..")
 

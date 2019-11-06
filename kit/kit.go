@@ -92,3 +92,7 @@ func (s *MuKitServer) Run() {
 func (s *MuKitServer) RiverSystem() *river.SubSystem {
 	return s.river
 }
+
+func (s *MuKitServer) RPCSystem() *rpc.SubSystem {
+	return s.rpc
+}
