@@ -25,5 +25,6 @@ func SignalsHandler(closer Closer, logger zerolog.Logger) error {
 			logger.Error().Err(err).Msg("Close failed")
 		}
 	}()
+
 	return nil
 }

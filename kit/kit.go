@@ -87,9 +87,15 @@ func NewWithSubSystems(rpcSubSystem *rpc.SubSystem, riverSubSystem *river.SubSys
 func (s *MuKitServer) Run() {
 	// defer s.river.Close()
 	s.closeWg.Add(1)
+
 	go s.river.Run()
+
 	go s.rpc.Run()
-	SignalsHandler(s, log.Logger)
+
+	if err := SignalsHandler(s, log.Logger); err != nil {
+		s.Close()
+	}
+
 	s.closeWg.Wait()
 }
 
@@ -97,6 +103,7 @@ func (s *MuKitServer) Close() error {
 	defer s.closeWg.Done()
 	s.river.Close()
 	s.rpc.Close()
+
 	return nil
 }
 
