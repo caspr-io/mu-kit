@@ -7,6 +7,7 @@ import (
 
 	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
 	"github.com/golang/protobuf/proto"
+	"github.com/rs/zerolog/log"
 	"gotest.tools/v3/assert"
 )
 
@@ -49,7 +50,7 @@ func TestShouldReceivePublishedMessage(t *testing.T) {
 }
 
 func makeRouter(t *testing.T) *MuRouter {
-	logger := NewZerologLogger()
+	logger := NewZerologLogger(&log.Logger)
 	pubSub := gochannel.NewGoChannel(gochannel.Config{}, logger)
 
 	router, err := NewRouter(context.Background(), pubSub, pubSub, logger)
