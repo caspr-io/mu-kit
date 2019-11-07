@@ -102,11 +102,14 @@ func (r *MuRouter) Close() error {
 	pubErr := r.publisher.Close()
 	subErr := r.subscriber.Close()
 	routerErr := r.r.Close()
+
 	if pubErr != nil {
 		return pubErr
 	}
+
 	if subErr != nil {
 		return subErr
 	}
+
 	return routerErr
 }
