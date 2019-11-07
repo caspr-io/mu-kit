@@ -7,12 +7,14 @@ import (
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/gogo/protobuf/proto"
 	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 type SubSystem struct {
 	subscriber message.Subscriber
 	publisher  message.Publisher
 	router     *MuRouter
+	logger     zerolog.Logger
 }
 
 type SubSystemConfig struct {
@@ -22,10 +24,12 @@ type SubSystemConfig struct {
 	NatsQueueGroup string `split_words:"true" required:"true"`
 }
 
-func New(logger *zerolog.Logger, config *SubSystemConfig) (*SubSystem, error) {
+func New(config *SubSystemConfig) (*SubSystem, error) {
+	logger := log.Logger.With().Str("component", "µ-kit Streaming").Logger()
+
 	logger.Info().Interface("config", config).Msg("Initializing µ-Kit Messaging subsystem...")
 
-	watermillLogger := NewZerologLogger()
+	watermillLogger := NewZerologLogger(&logger)
 
 	stanConn, err := connectToStan(config)
 	if err != nil {
@@ -46,16 +50,17 @@ func New(logger *zerolog.Logger, config *SubSystemConfig) (*SubSystem, error) {
 		return nil, err
 	}
 
-	return NewSubSystem(watermillLogger, subscriber, publisher)
+	return NewSubSystem(logger, watermillLogger, subscriber, publisher)
 }
 
-func NewSubSystem(logger watermill.LoggerAdapter, subscriber message.Subscriber, publisher message.Publisher) (*SubSystem, error) {
-	router, err := NewRouter(context.Background(), publisher, subscriber, logger)
+func NewSubSystem(logger zerolog.Logger, watermillLogger watermill.LoggerAdapter, subscriber message.Subscriber, publisher message.Publisher) (*SubSystem, error) {
+	router, err := NewRouter(context.Background(), publisher, subscriber, watermillLogger)
 	if err != nil {
 		return nil, err
 	}
 
 	return &SubSystem{
+		logger:     logger,
 		subscriber: subscriber,
 		publisher:  publisher,
 		router:     router,

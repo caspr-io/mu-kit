@@ -4,13 +4,17 @@ import (
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
+	"github.com/rs/zerolog/log"
 )
 
 func NewTestRiver() (*SubSystem, error) {
-	logger := NewZerologLogger()
-	pub, sub := goChannelPubSub(logger)
+	logger := log.Logger.With().Str("component", "µ-kit Streaming").Logger()
 
-	return NewSubSystem(logger, sub, pub)
+	watermillLogger := NewZerologLogger(&logger)
+
+	pub, sub := goChannelPubSub(watermillLogger)
+
+	return NewSubSystem(logger, watermillLogger, sub, pub)
 }
 
 func goChannelPubSub(logger watermill.LoggerAdapter) (message.Publisher, message.Subscriber) {

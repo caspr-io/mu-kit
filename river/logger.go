@@ -3,7 +3,6 @@ package river
 import (
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 )
 
 type ZeroLogger struct {
@@ -54,6 +53,6 @@ func withFields(logger *zerolog.Logger, fields watermill.LogFields) *zerolog.Log
 	return &newLogger
 }
 
-func NewZerologLogger() watermill.LoggerAdapter {
-	return &ZeroLogger{true, &log.Logger}
+func NewZerologLogger(logger *zerolog.Logger) watermill.LoggerAdapter {
+	return &ZeroLogger{true, logger}
 }

@@ -68,7 +68,7 @@ func New(name string) (*MuKitServer, error) {
 		return nil, err
 	}
 
-	riverSystem, err := river.New(&log.Logger, Config.riverConfig)
+	riverSystem, err := river.New(Config.riverConfig)
 	if err != nil {
 		return nil, err
 	}

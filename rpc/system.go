@@ -21,7 +21,7 @@ type SubSystem struct {
 
 // New creates a new RPC SubSystem
 func New(config *SubSystemConfig) (*SubSystem, error) {
-	logger := log.Logger.With().Str("component", "µ-kit-rpc").Logger()
+	logger := log.Logger.With().Str("component", "µ-kit RPC").Logger()
 
 	logger.Info().Interface("config", config).Msg("Initializing µ-Kit RPC subsystem...")
 
@@ -67,4 +67,6 @@ func (s *SubSystem) Run() {
 	if err := s.grpcServer.Serve(s.listener); err != nil {
 		s.logger.Fatal().Err(err).Msg("Cannot serve µ-Kit server")
 	}
+
+	s.logger.Info().Msg("gRPC server has shut down")
 }
