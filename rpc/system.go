@@ -70,3 +70,9 @@ func (s *SubSystem) Run() {
 
 	s.logger.Info().Msg("gRPC server has shut down")
 }
+
+func (s *SubSystem) Close() error {
+	s.logger.Info().Msg("Closing µ-Kit gRPC server...")
+	s.grpcServer.Stop()
+	return nil
+}

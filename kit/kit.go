@@ -3,6 +3,7 @@ package kit
 import (
 	"os"
 	"strings"
+	"sync"
 
 	"github.com/caspr-io/mu-kit/river"
 	"github.com/caspr-io/mu-kit/rpc"
@@ -10,13 +11,15 @@ import (
 	"github.com/kelseyhightower/envconfig"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"github.com/rs/zerolog/pkgerrors"
 )
 
 var Config *MuKitConfig
 
 type MuKitServer struct {
-	rpc   *rpc.SubSystem
-	river *river.SubSystem
+	rpc     *rpc.SubSystem
+	river   *river.SubSystem
+	closeWg sync.WaitGroup
 }
 
 type MuKitConfig struct {
@@ -29,6 +32,7 @@ func initLogger(name string) {
 	log.Logger = zerolog.New(os.Stdout).With().Str("service", name).Timestamp().Logger()
 	zerolog.TimestampFieldName = "t"
 	zerolog.LevelFieldName = "l"
+	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
 	zerolog.MessageFieldName = "m"
 }
 
@@ -77,15 +81,23 @@ func New(name string) (*MuKitServer, error) {
 }
 
 func NewWithSubSystems(rpcSubSystem *rpc.SubSystem, riverSubSystem *river.SubSystem) *MuKitServer {
-	return &MuKitServer{rpcSubSystem, riverSubSystem}
+	return &MuKitServer{rpcSubSystem, riverSubSystem, sync.WaitGroup{}}
 }
 
 func (s *MuKitServer) Run() {
-	defer s.river.Close()
-
+	// defer s.river.Close()
+	s.closeWg.Add(1)
 	go s.river.Run()
+	go s.rpc.Run()
+	SignalsHandler(s, log.Logger)
+	s.closeWg.Wait()
+}
 
-	s.rpc.Run()
+func (s *MuKitServer) Close() error {
+	defer s.closeWg.Done()
+	s.river.Close()
+	s.rpc.Close()
+	return nil
 }
 
 func (s *MuKitServer) RiverSystem() *river.SubSystem {

@@ -79,6 +79,7 @@ func (s *SubSystem) Run() {
 	s.router.Start()
 }
 
-func (s *SubSystem) Close() {
+func (s *SubSystem) Close() error {
 	s.router.Close()
+	return nil
 }

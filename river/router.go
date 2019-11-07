@@ -9,11 +9,12 @@ import (
 	"github.com/ThreeDotsLabs/watermill/message/router/middleware"
 	"github.com/ThreeDotsLabs/watermill/message/router/plugin"
 	"github.com/golang/protobuf/proto"
+	"github.com/rs/zerolog/log"
 	"github.com/satori/uuid"
 )
 
 type MuRouter struct {
-	r          *message.Router
+	// r          *message.Router
 	publisher  message.Publisher
 	subscriber message.Subscriber
 	context    context.Context
@@ -47,7 +48,7 @@ func NewRouter(
 		middleware.Recoverer,
 	)
 
-	return &MuRouter{router, publisher, subscriber, context, DefaultTopicName}, nil
+	return &MuRouter{publisher, subscriber, context, DefaultTopicName}, nil
 }
 
 // Subscribe subscribes a MuMessageHandler to its specific topic and will call the Handle
@@ -55,23 +56,27 @@ func NewRouter(
 func (r *MuRouter) Subscribe(mh MuMessageHandler) error {
 	m := mh.NewMsg()
 	topic := r.topicName(m)
-
-	r.r.AddNoPublisherHandler(mh.Name(), topic, r.subscriber, func(msg *message.Message) error {
-		protoMsg := mh.NewMsg()
-
-		if err := proto.Unmarshal(msg.Payload, protoMsg); err != nil {
-			return err
-		}
-
-		if err := mh.Handle(msg.Context(), protoMsg); err != nil {
-			return err
-		}
-
-		return nil
-	})
+	log.Logger.Info().Str("topic", topic).Msg("Subscribe to messages")
 
 	return nil
 }
+
+// 	r.r.AddNoPublisherHandler(mh.Name(), topic, r.subscriber, func(msg *message.Message) error {
+// 		protoMsg := mh.NewMsg()
+
+// 		if err := proto.Unmarshal(msg.Payload, protoMsg); err != nil {
+// 			return err
+// 		}
+
+// 		if err := mh.Handle(msg.Context(), protoMsg); err != nil {
+// 			return err
+// 		}
+
+// 		return nil
+// 	})
+
+// 	return nil
+// }
 
 // Publish publishes one or more messages on their respective topics.
 func (r *MuRouter) Publish(msgs ...proto.Message) error {
@@ -94,14 +99,14 @@ func (r *MuRouter) Publish(msgs ...proto.Message) error {
 
 // Start starts the MuRouter in the background using a go channel
 func (r *MuRouter) Start() {
-	go r.r.Run(r.context)
-	<-r.r.Running()
+	// go r.r.Run(r.context)
+	// <-r.r.Running()
 }
 
 func (r *MuRouter) Close() error {
 	pubErr := r.publisher.Close()
 	subErr := r.subscriber.Close()
-	routerErr := r.r.Close()
+	// routerErr := r.r.Close()
 
 	if pubErr != nil {
 		return pubErr
@@ -110,6 +115,6 @@ func (r *MuRouter) Close() error {
 	if subErr != nil {
 		return subErr
 	}
-
-	return routerErr
+	return nil
+	// return routerErr
 }
