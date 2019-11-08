@@ -14,8 +14,8 @@ type Subscription struct {
 	running    chan struct{}
 }
 
-func (s *Subscription) Run() error {
-	log := s.logger.With().Str("topic", s.topic).Logger()
+func (s *Subscription) Run() {
+	log := s.logger.With().Str("handler", s.handler.Name()).Str("topic", s.topic).Logger()
 
 	close(s.running)
 
@@ -26,13 +26,15 @@ func (s *Subscription) Run() error {
 		payload := m.Payload
 
 		if err := proto.Unmarshal(payload, protoMsg); err != nil {
-			return err
+			log.Error().Err(err).Str("uuid", m.UUID).Msg("Could not deserialize message payload")
+			m.Nack()
 		}
 
 		if err := s.handler.Handle(m.Context(), protoMsg); err != nil {
-			return err
+			log.Error().Err(err).Str("uuid", m.UUID).Msg("Error handling message.")
+			m.Nack()
 		}
-	}
 
-	return nil
+		m.Ack()
+	}
 }
