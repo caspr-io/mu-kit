@@ -2,53 +2,28 @@ package river
 
 import (
 	"context"
-	"time"
 
-	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/message"
-	"github.com/ThreeDotsLabs/watermill/message/router/middleware"
-	"github.com/ThreeDotsLabs/watermill/message/router/plugin"
 	"github.com/golang/protobuf/proto"
-	"github.com/rs/zerolog/log"
+	"github.com/rs/zerolog"
 	"github.com/satori/uuid"
 )
 
 type MuRouter struct {
-	// r          *message.Router
-	publisher  message.Publisher
-	subscriber message.Subscriber
-	context    context.Context
-	topicName  func(interface{}) string
-}
-
-type MuMessageHandler interface {
-	Name() string
-	NewMsg() proto.Message
-	Handle(ctx context.Context, m proto.Message) error
+	logger        zerolog.Logger
+	publisher     message.Publisher
+	subscriber    message.Subscriber
+	context       context.Context
+	topicName     func(interface{}) string
+	subscriptions []Subscription
 }
 
 func NewRouter(
 	context context.Context,
 	publisher message.Publisher,
 	subscriber message.Subscriber,
-	logger watermill.LoggerAdapter) (*MuRouter, error) {
-	router, err := message.NewRouter(message.RouterConfig{}, logger)
-	if err != nil {
-		return nil, err
-	}
-
-	router.AddPlugin(plugin.SignalsHandler)
-	router.AddMiddleware(
-		middleware.CorrelationID,
-		middleware.Retry{
-			MaxRetries:      3,
-			InitialInterval: time.Millisecond * 100,
-			Logger:          logger,
-		}.Middleware,
-		middleware.Recoverer,
-	)
-
-	return &MuRouter{publisher, subscriber, context, DefaultTopicName}, nil
+	logger zerolog.Logger) (*MuRouter, error) {
+	return &MuRouter{logger, publisher, subscriber, context, DefaultTopicName, []Subscription{}}, nil
 }
 
 // Subscribe subscribes a MuMessageHandler to its specific topic and will call the Handle
@@ -56,27 +31,22 @@ func NewRouter(
 func (r *MuRouter) Subscribe(mh MuMessageHandler) error {
 	m := mh.NewMsg()
 	topic := r.topicName(m)
-	log.Logger.Info().Str("topic", topic).Msg("Subscribe to messages")
+	r.logger.Info().Str("topic", topic).Msg("Subscribe to messages")
+
+	subscription, err := r.subscriber.Subscribe(r.context, topic)
+	if err != nil {
+		return err
+	}
+
+	subscriptionRunning := make(chan struct{})
+
+	s := &Subscription{handler: mh, msgChannel: subscription, topic: topic, logger: r.logger, running: subscriptionRunning}
+	go s.Run()
+
+	<-subscriptionRunning
 
 	return nil
 }
-
-// 	r.r.AddNoPublisherHandler(mh.Name(), topic, r.subscriber, func(msg *message.Message) error {
-// 		protoMsg := mh.NewMsg()
-
-// 		if err := proto.Unmarshal(msg.Payload, protoMsg); err != nil {
-// 			return err
-// 		}
-
-// 		if err := mh.Handle(msg.Context(), protoMsg); err != nil {
-// 			return err
-// 		}
-
-// 		return nil
-// 	})
-
-// 	return nil
-// }
 
 // Publish publishes one or more messages on their respective topics.
 func (r *MuRouter) Publish(msgs ...proto.Message) error {
@@ -99,14 +69,11 @@ func (r *MuRouter) Publish(msgs ...proto.Message) error {
 
 // Start starts the MuRouter in the background using a go channel
 func (r *MuRouter) Start() {
-	// go r.r.Run(r.context)
-	// <-r.r.Running()
 }
 
 func (r *MuRouter) Close() error {
 	pubErr := r.publisher.Close()
 	subErr := r.subscriber.Close()
-	// routerErr := r.r.Close()
 
 	if pubErr != nil {
 		return pubErr
@@ -115,6 +82,6 @@ func (r *MuRouter) Close() error {
 	if subErr != nil {
 		return subErr
 	}
+
 	return nil
-	// return routerErr
 }

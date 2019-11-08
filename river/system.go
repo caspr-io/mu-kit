@@ -54,7 +54,7 @@ func New(config *SubSystemConfig) (*SubSystem, error) {
 }
 
 func NewSubSystem(logger zerolog.Logger, watermillLogger watermill.LoggerAdapter, subscriber message.Subscriber, publisher message.Publisher) (*SubSystem, error) {
-	router, err := NewRouter(context.Background(), publisher, subscriber, watermillLogger)
+	router, err := NewRouter(context.Background(), publisher, subscriber, logger)
 	if err != nil {
 		return nil, err
 	}

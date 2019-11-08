@@ -53,7 +53,7 @@ func makeRouter(t *testing.T) *MuRouter {
 	logger := NewZerologLogger(&log.Logger)
 	pubSub := gochannel.NewGoChannel(gochannel.Config{}, logger)
 
-	router, err := NewRouter(context.Background(), pubSub, pubSub, logger)
+	router, err := NewRouter(context.Background(), pubSub, pubSub, log.Logger)
 	if err != nil {
 		t.Error(err)
 	}
