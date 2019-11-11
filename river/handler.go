@@ -8,8 +8,8 @@ import (
 )
 
 type MessageContext struct {
-	ctx    context.Context
-	logger *zerolog.Logger
+	Ctx    context.Context
+	Logger *zerolog.Logger
 }
 
 type MuMessageHandler interface {
