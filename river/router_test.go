@@ -25,7 +25,7 @@ func (th *TestMessageHandler) Handle(ctx context.Context, m proto.Message) error
 	return nil
 }
 
-func TestShouldReceivePublishedMessage(t *testing.T) {
+func TestShouldReceiveOnePublishedMessage(t *testing.T) {
 	router := makeRouter(t)
 
 	var wg sync.WaitGroup
@@ -47,6 +47,30 @@ func TestShouldReceivePublishedMessage(t *testing.T) {
 
 	wg.Wait()
 	assert.Assert(t, len(tmh.messages) == 1)
+}
+
+func TestShouldReceiveAllPublishedMessage(t *testing.T) {
+	router := makeRouter(t)
+
+	var wg sync.WaitGroup
+
+	tmh := TestMessageHandler{wg: &wg}
+
+	wg.Add(3)
+
+	if err := router.Subscribe(&tmh); err != nil {
+		t.Error(err)
+	}
+
+	router.Start()
+	defer router.Close()
+
+	if err := router.Publish(&TestMessage{Contents: "test message"}, &TestMessage{Contents: "2nd message"}, &TestMessage{Contents: "third message"}); err != nil {
+		t.Error(err)
+	}
+
+	wg.Wait()
+	assert.Assert(t, len(tmh.messages) == 3)
 }
 
 func makeRouter(t *testing.T) *MuRouter {

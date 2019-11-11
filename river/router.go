@@ -31,7 +31,7 @@ func NewRouter(
 func (r *MuRouter) Subscribe(mh MuMessageHandler) error {
 	m := mh.NewMsg()
 	topic := r.topicName(m)
-	r.logger.Info().Str("topic", topic).Msg("Subscribe to messages")
+	r.logger.Info().Str("handler", mh.Name()).Str("topic", topic).Msg("Subscribe to messages")
 
 	subscription, err := r.subscriber.Subscribe(r.context, topic)
 	if err != nil {
