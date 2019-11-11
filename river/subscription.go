@@ -20,17 +20,19 @@ func (s *Subscription) Run() {
 	close(s.running)
 
 	for m := range s.msgChannel {
-		log.Info().Str("uuid", m.UUID).Msg("Received message...")
+		messageLogger := log.With().Str("message_uuid", m.UUID).Logger()
+		messageLogger.Info().Msg("Received message...")
 
 		protoMsg := s.handler.NewMsg()
 		payload := m.Payload
 
 		if err := proto.Unmarshal(payload, protoMsg); err != nil {
-			log.Error().Err(err).Str("uuid", m.UUID).Msg("Could not deserialize message payload")
+			messageLogger.Error().Err(err).Msg("Could not deserialize message payload")
 			m.Nack()
 		}
 
-		if err := s.handler.Handle(m.Context(), protoMsg); err != nil {
+		c := &MessageContext{m.Context(), &messageLogger}
+		if err := s.handler.Handle(c, protoMsg); err != nil {
 			log.Error().Err(err).Str("uuid", m.UUID).Msg("Error handling message.")
 			m.Nack()
 		}
