@@ -15,25 +15,26 @@ type Subscription struct {
 }
 
 func (s *Subscription) Run() {
-	log := s.logger.With().Str("handler", s.handler.Name()).Str("topic", s.topic).Logger()
+	log := s.logger.With().Str("handler", s.handler.Name()).Logger()
 
 	close(s.running)
 
 	for m := range s.msgChannel {
 		messageLogger := log.With().Str("message_uuid", m.UUID).Logger()
-		messageLogger.Info().Msg("Received message...")
+		topicLogger := messageLogger.With().Str("topic", s.topic).Logger()
+		topicLogger.Info().Msg("Received message...")
 
 		protoMsg := s.handler.NewMsg()
 		payload := m.Payload
 
 		if err := proto.Unmarshal(payload, protoMsg); err != nil {
-			messageLogger.Error().Err(err).Msg("Could not deserialize message payload")
+			topicLogger.Error().Err(err).Msg("Could not deserialize message payload")
 			m.Nack()
 		}
 
 		c := &MessageContext{m.Context(), &messageLogger}
 		if err := s.handler.Handle(c, protoMsg); err != nil {
-			log.Error().Err(err).Str("uuid", m.UUID).Msg("Error handling message.")
+			topicLogger.Error().Err(err).Str("uuid", m.UUID).Msg("Error handling message.")
 			m.Nack()
 		}
 
