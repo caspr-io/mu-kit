@@ -1,10 +1,14 @@
 package river
 
 import (
+	"io"
+
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/golang/protobuf/proto"
 	"github.com/rs/zerolog"
 )
+
+var _ io.Closer = (*Subscription)(nil) // compile-time check for io.Closer assignability
 
 type Subscription struct {
 	handler    MuMessageHandler
@@ -40,4 +44,12 @@ func (s *Subscription) Run() {
 
 		m.Ack()
 	}
+}
+
+func (s *Subscription) Close() error {
+	if c, ok := s.handler.(io.Closer); ok {
+		s.logger.Info().Str("handler", s.handler.Name()).Msg("Closing the handler...")
+		return c.Close()
+	}
+	return nil
 }

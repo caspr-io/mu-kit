@@ -15,7 +15,7 @@ type MuRouter struct {
 	subscriber    message.Subscriber
 	context       context.Context
 	topicName     func(interface{}) string
-	subscriptions []Subscription
+	subscriptions []*Subscription
 }
 
 func NewRouter(
@@ -23,7 +23,7 @@ func NewRouter(
 	publisher message.Publisher,
 	subscriber message.Subscriber,
 	logger zerolog.Logger) (*MuRouter, error) {
-	return &MuRouter{logger, publisher, subscriber, context, DefaultTopicName, []Subscription{}}, nil
+	return &MuRouter{logger, publisher, subscriber, context, DefaultTopicName, []*Subscription{}}, nil
 }
 
 // Subscribe subscribes a MuMessageHandler to its specific topic and will call the Handle
@@ -41,6 +41,7 @@ func (r *MuRouter) Subscribe(mh MuMessageHandler) error {
 	subscriptionRunning := make(chan struct{})
 
 	s := &Subscription{handler: mh, msgChannel: subscription, topic: topic, logger: r.logger, running: subscriptionRunning}
+	r.subscriptions = append(r.subscriptions, s)
 	go s.Run()
 
 	<-subscriptionRunning
@@ -72,6 +73,10 @@ func (r *MuRouter) Start() {
 }
 
 func (r *MuRouter) Close() error {
+	for _, s := range r.subscriptions {
+		s.Close()
+	}
+
 	pubErr := r.publisher.Close()
 	subErr := r.subscriber.Close()
 

@@ -12,6 +12,8 @@ type MessageContext struct {
 	Logger *zerolog.Logger
 }
 
+// A MuMessageHandler can optionally implement io.Closer.
+// This ensures that its Close() method will be called when the river.Subscription is Closed
 type MuMessageHandler interface {
 	Name() string
 	NewMsg() proto.Message
