@@ -71,6 +71,10 @@ func (s *SubSystem) Publish(msg proto.Message) error {
 	return s.router.Publish(msg)
 }
 
+func (s *SubSystem) Publisher() Publisher {
+	return s.router
+}
+
 func (s *SubSystem) Subscribe(m MuMessageHandler) error {
 	return s.router.Subscribe(m)
 }

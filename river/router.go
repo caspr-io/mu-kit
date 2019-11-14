@@ -9,6 +9,10 @@ import (
 	"github.com/satori/uuid"
 )
 
+type Publisher interface {
+	Publish(msgs ...proto.Message) error
+}
+
 type MuRouter struct {
 	logger        zerolog.Logger
 	publisher     message.Publisher

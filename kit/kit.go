@@ -1,6 +1,7 @@
 package kit
 
 import (
+	"fmt"
 	"os"
 	"strings"
 	"sync"
@@ -35,7 +36,7 @@ func initLogger(name string) {
 	zerolog.MessageFieldName = "m"
 }
 
-func readConfig(configPrefix string, config *MuKitConfig) error {
+func readConfig(configPrefix string, config interface{}) error {
 	try := util.Try()
 	try.Try(readConfigFromEnvironment(configPrefix, config))
 
@@ -52,24 +53,30 @@ func readConfigFromEnvironment(configPrefix string, config interface{}) func() e
 	}
 }
 
-func New(name string, config *MuKitConfig) (*MuKitServer, error) {
+func New(name string, config interface{}) (*MuKitServer, error) {
 	initLogger(name)
 
 	if err := readConfig(name, config); err != nil {
 		return nil, err
 	}
 
-	rpcSystem, err := rpc.New(config.Grpc)
+	// Cast to MuKitConfig
+	cfg, ok := config.(*MuKitConfig)
+	if !ok {
+		return nil, fmt.Errorf("passed config %T is not a MuKitConfig", config)
+	}
+
+	rpcSystem, err := rpc.New(cfg.Grpc)
 	if err != nil {
 		return nil, err
 	}
 
-	riverSystem, err := river.New(config.River)
+	riverSystem, err := river.New(cfg.River)
 	if err != nil {
 		return nil, err
 	}
 
-	return NewWithSubSystems(config, rpcSystem, riverSystem), nil
+	return NewWithSubSystems(cfg, rpcSystem, riverSystem), nil
 }
 
 func NewWithSubSystems(config *MuKitConfig, rpcSubSystem *rpc.SubSystem, riverSubSystem *river.SubSystem) *MuKitServer {
