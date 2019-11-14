@@ -1,0 +1,3 @@
+TEST_FOO=foo
+TEST_NESTED_BAR=nestedbar
+TEST_BAR=bar

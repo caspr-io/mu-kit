@@ -8,14 +8,14 @@ import (
 )
 
 func TestShouldFailWhenVariablesMissing(t *testing.T) {
-	assert.Error(t, readConfig("TEST_SERVICE"), "required key TEST_SERVICE_GRPC_PORT missing value")
+	assert.Error(t, readConfig("TEST_SERVICE", &MuKitConfig{}), "required key TEST_SERVICE_GRPC_PORT missing value")
 }
 
 func TestShouldUpperUnderscoreConfigPrefix(t *testing.T) {
-	assert.Error(t, readConfig("test-service"), "required key TEST_SERVICE_GRPC_PORT missing value")
+	assert.Error(t, readConfig("test-service", &MuKitConfig{}), "required key TEST_SERVICE_GRPC_PORT missing value")
 }
 
 func TestShouldSucceedWhenAllVariablesSet(t *testing.T) {
 	defer test.PatchEnvFromFile("testenv")()
-	assert.NilError(t, readConfig("TEST_SERVICE"))
+	assert.NilError(t, readConfig("TEST_SERVICE", &MuKitConfig{}))
 }

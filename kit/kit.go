@@ -14,17 +14,16 @@ import (
 	"github.com/rs/zerolog/pkgerrors"
 )
 
-var Config *MuKitConfig
-
 type MuKitServer struct {
+	config  *MuKitConfig
 	rpc     *rpc.SubSystem
 	river   *river.SubSystem
 	closeWg sync.WaitGroup
 }
 
 type MuKitConfig struct {
-	rpcConfig   *rpc.SubSystemConfig
-	riverConfig *river.SubSystemConfig
+	Grpc  *rpc.SubSystemConfig
+	River *river.SubSystemConfig `envconfig:"PUBSUB"`
 }
 
 // Initizalize the Mu-Kit environment
@@ -36,16 +35,9 @@ func initLogger(name string) {
 	zerolog.MessageFieldName = "m"
 }
 
-func readConfig(configPrefix string) error {
+func readConfig(configPrefix string, config *MuKitConfig) error {
 	try := util.Try()
-
-	rpcConfig := &rpc.SubSystemConfig{}
-	riverConfig := &river.SubSystemConfig{}
-
-	try.Try(readConfigFromEnvironment(configPrefix, rpcConfig))
-	try.Try(readConfigFromEnvironment(configPrefix, riverConfig))
-
-	Config = &MuKitConfig{rpcConfig: rpcConfig, riverConfig: riverConfig}
+	try.Try(readConfigFromEnvironment(configPrefix, config))
 
 	return try.Error()
 }
@@ -60,28 +52,28 @@ func readConfigFromEnvironment(configPrefix string, config interface{}) func() e
 	}
 }
 
-func New(name string) (*MuKitServer, error) {
+func New(name string, config *MuKitConfig) (*MuKitServer, error) {
 	initLogger(name)
 
-	if err := readConfig(name); err != nil {
+	if err := readConfig(name, config); err != nil {
 		return nil, err
 	}
 
-	rpcSystem, err := rpc.New(Config.rpcConfig)
+	rpcSystem, err := rpc.New(config.Grpc)
 	if err != nil {
 		return nil, err
 	}
 
-	riverSystem, err := river.New(Config.riverConfig)
+	riverSystem, err := river.New(config.River)
 	if err != nil {
 		return nil, err
 	}
 
-	return NewWithSubSystems(rpcSystem, riverSystem), nil
+	return NewWithSubSystems(config, rpcSystem, riverSystem), nil
 }
 
-func NewWithSubSystems(rpcSubSystem *rpc.SubSystem, riverSubSystem *river.SubSystem) *MuKitServer {
-	return &MuKitServer{rpcSubSystem, riverSubSystem, sync.WaitGroup{}}
+func NewWithSubSystems(config *MuKitConfig, rpcSubSystem *rpc.SubSystem, riverSubSystem *river.SubSystem) *MuKitServer {
+	return &MuKitServer{config, rpcSubSystem, riverSubSystem, sync.WaitGroup{}}
 }
 
 func (s *MuKitServer) Run() {
@@ -113,4 +105,8 @@ func (s *MuKitServer) RiverSystem() *river.SubSystem {
 
 func (s *MuKitServer) RPCSystem() *rpc.SubSystem {
 	return s.rpc
+}
+
+func (s *MuKitServer) Config() *MuKitConfig {
+	return s.config
 }

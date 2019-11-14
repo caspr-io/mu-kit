@@ -27,7 +27,7 @@ func NewLocalTestKitServer(name string, f func(*rpc.SubSystem, *river.SubSystem)
 	rpcService := f(rpcSystem, riverSystem)
 	rpcSystem.Register(rpcService)
 
-	server := NewWithSubSystems(rpcSystem, riverSystem)
+	server := NewWithSubSystems(&MuKitConfig{}, rpcSystem, riverSystem)
 
 	return server, rpc.DialConnection(listener)
 }

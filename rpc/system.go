@@ -10,7 +10,7 @@ import (
 )
 
 type SubSystemConfig struct {
-	GrpcPort int `split_words:"true" required:"true"`
+	Port int `split_words:"true" required:"true"`
 }
 
 type SubSystem struct {
@@ -50,7 +50,7 @@ func (s *SubSystem) Register(service Service) {
 }
 
 func startTcpListener(logger zerolog.Logger, config *SubSystemConfig) (net.Listener, error) {
-	address := fmt.Sprintf(":%d", config.GrpcPort)
+	address := fmt.Sprintf(":%d", config.Port)
 
 	listener, err := net.Listen("tcp", address)
 	if err != nil {
