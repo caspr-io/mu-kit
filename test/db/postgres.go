@@ -3,7 +3,9 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"strconv"
 
+	"github.com/caspr-io/mu-kit/db"
 	database "github.com/caspr-io/mu-kit/db"
 	"github.com/caspr-io/mu-kit/test/docker"
 
@@ -40,11 +42,17 @@ func StartPostgresContainer() (*docker.Docker, *pg.DB, error) {
 		return nil, nil, err
 	}
 
-	return dckr, pg.Connect(&pg.Options{
+	port, err := strconv.Atoi(c.GetPort("5432/tcp"))
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return dckr, db.ConnectToPostgreSQL(&database.PostgreSQLConfig{
+		Host:     "localhost",
+		Port:     port,
 		User:     "postgres",
 		Password: "secret",
 		Database: "postgres",
-		Addr:     fmt.Sprintf("localhost:%s", c.GetPort("5432/tcp")),
 	}), nil
 }
 
