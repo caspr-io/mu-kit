@@ -1,13 +1,12 @@
 ROOTPROJECT ?= ../root
 APIPROJECT = .
+PROTOBUF_FILES=river/sample.pb.go
 include ${ROOTPROJECT}/include.mk
-PROTOC_FILES=river/sample.pb.go
 
-.PHONY: clean build test generate
-generate: ${PROTOC_FILES}
+.PHONY: clean build test
 clean: go/clean
-build: generate go/build
-test: generate go/test
+build: protobuf/generate go/build
+test: protobuf/generate go/test
 
 # Targets for cluster/up and cluster/teardown
 .PHONY: up down

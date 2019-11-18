@@ -16,15 +16,10 @@ import (
 )
 
 type MuKitServer struct {
-	config  *MuKitConfig
+	config  MuServerConfig
 	rpc     *rpc.SubSystem
 	river   *river.SubSystem
 	closeWg sync.WaitGroup
-}
-
-type MuKitConfig struct {
-	Grpc  *rpc.SubSystemConfig
-	River *river.SubSystemConfig `envconfig:"PUBSUB"`
 }
 
 // Initizalize the Mu-Kit environment
@@ -61,17 +56,17 @@ func New(name string, config interface{}) (*MuKitServer, error) {
 	}
 
 	// Cast to MuKitConfig
-	cfg, ok := config.(*MuKitConfig)
+	cfg, ok := config.(MuServerConfig)
 	if !ok {
 		return nil, fmt.Errorf("passed config %T is not a MuKitConfig", config)
 	}
 
-	rpcSystem, err := rpc.New(cfg.Grpc)
+	rpcSystem, err := rpc.New(cfg.GrpcConfig())
 	if err != nil {
 		return nil, err
 	}
 
-	riverSystem, err := river.New(cfg.River)
+	riverSystem, err := river.New(cfg.RiverConfig())
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +74,7 @@ func New(name string, config interface{}) (*MuKitServer, error) {
 	return NewWithSubSystems(cfg, rpcSystem, riverSystem), nil
 }
 
-func NewWithSubSystems(config *MuKitConfig, rpcSubSystem *rpc.SubSystem, riverSubSystem *river.SubSystem) *MuKitServer {
+func NewWithSubSystems(config MuServerConfig, rpcSubSystem *rpc.SubSystem, riverSubSystem *river.SubSystem) *MuKitServer {
 	return &MuKitServer{config, rpcSubSystem, riverSubSystem, sync.WaitGroup{}}
 }
 
@@ -114,6 +109,6 @@ func (s *MuKitServer) RPCSystem() *rpc.SubSystem {
 	return s.rpc
 }
 
-func (s *MuKitServer) Config() *MuKitConfig {
+func (s *MuKitServer) Config() MuServerConfig {
 	return s.config
 }
