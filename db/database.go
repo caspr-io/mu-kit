@@ -23,6 +23,7 @@ func ConnectToPostgreSQL(config *PostgreSQLConfig) *pg.DB {
 		User:     config.User,
 		Password: config.Password,
 		PoolSize: config.PoolSize,
+		Database: config.Database,
 	})
 }
 
