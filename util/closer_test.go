@@ -27,3 +27,10 @@ func TestMultiCloserShouldReturnErrorWhenErrorDuringClosing(t *testing.T) {
 
 	assert.ErrorContains(t, multi.Close(), "An Error")
 }
+
+func TestMultiCloserShouldNotAddNilCloser(t *testing.T) {
+	multi := new(MultiCloser)
+	multi.Add(nil)
+
+	assert.NilError(t, multi.Close())
+}

@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"io"
 	"strconv"
 
 	"github.com/caspr-io/mu-kit/db"
@@ -16,7 +17,24 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file" // this is a comment jutifying the import ;)
 )
 
-func Postgres(dckr *docker.Docker) (*pg.DB, error) {
+func PostgresContainer(migrations string, pgDB *pg.DB) func(*docker.Docker) (io.Closer, error) {
+	return func(dckr *docker.Docker) (io.Closer, error) {
+		conn, err := startPostgres(dckr)
+		if err != nil {
+			return nil, err
+		}
+
+		*pgDB = *conn // Redirect the pointer to the newly created connection
+
+		if err := migratePostgres(pgDB, "file://../db/migrations"); err != nil {
+			return pgDB, err
+		}
+
+		return pgDB, nil
+	}
+}
+
+func startPostgres(dckr *docker.Docker) (*pg.DB, error) {
 	log.Logger.Info().Msg("Starting Postgres Docker image")
 
 	c, err := dckr.RunContainer("postgres", "12", []string{"POSTGRES_PASSWORD=secret"})
@@ -54,7 +72,7 @@ func Postgres(dckr *docker.Docker) (*pg.DB, error) {
 	}), nil
 }
 
-func Migrate(pgDB *pg.DB, migrations string) error {
+func migratePostgres(pgDB *pg.DB, migrations string) error {
 	db, err := database.AsDatabaseSQL(pgDB)
 	if err != nil {
 		return err

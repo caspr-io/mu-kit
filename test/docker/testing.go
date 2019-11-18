@@ -21,12 +21,12 @@ func RunTestsWithDockerContainers(m *testing.M, fs ...func(*Docker) (io.Closer, 
 
 	for _, f := range fs {
 		c, err := f(dckr)
+		closer.Add(c) // Even if an error is returned, we could have an open connection which needs closing
+
 		if err != nil {
 			errorCollector.Collect(err)
 			break
 		}
-
-		closer.Add(c)
 	}
 
 	if errorCollector.HasErrors() {

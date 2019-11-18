@@ -5,7 +5,9 @@ import "io"
 type MultiCloser []io.Closer
 
 func (mc *MultiCloser) Add(c io.Closer) {
-	*mc = append(*mc, c)
+	if c != nil {
+		*mc = append(*mc, c)
+	}
 }
 
 func (mc *MultiCloser) Close() error {
