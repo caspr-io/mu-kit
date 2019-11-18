@@ -8,6 +8,7 @@ import (
 	"github.com/caspr-io/mu-kit/db"
 	database "github.com/caspr-io/mu-kit/db"
 	"github.com/caspr-io/mu-kit/test/docker"
+	"github.com/rs/zerolog/log"
 
 	"github.com/go-pg/pg/v9"
 	"github.com/golang-migrate/migrate/v4"
@@ -15,15 +16,12 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file" // this is a comment jutifying the import ;)
 )
 
-func StartPostgresContainer() (*docker.Docker, *pg.DB, error) {
-	dckr, err := docker.StartDocker()
-	if err != nil {
-		return nil, nil, err
-	}
+func Postgres(dckr *docker.Docker) (*pg.DB, error) {
+	log.Logger.Info().Msg("Starting Postgres Docker image")
 
 	c, err := dckr.RunContainer("postgres", "12", []string{"POSTGRES_PASSWORD=secret"})
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	psqlInfo := fmt.Sprintf("host=localhost port=%s user=postgres password=secret dbname=postgres sslmode=disable", c.GetPort("5432/tcp"))
@@ -39,15 +37,15 @@ func StartPostgresContainer() (*docker.Docker, *pg.DB, error) {
 
 		return db.Ping()
 	}); err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	port, err := strconv.Atoi(c.GetPort("5432/tcp"))
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
-	return dckr, db.ConnectToPostgreSQL(&database.PostgreSQLConfig{
+	return db.ConnectToPostgreSQL(&database.PostgreSQLConfig{
 		Host:     "localhost",
 		Port:     port,
 		User:     "postgres",

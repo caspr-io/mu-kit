@@ -1,6 +1,8 @@
 package docker
 
-import "github.com/ory/dockertest"
+import "github.com/ory/dockertest/v3"
+
+import "github.com/caspr-io/mu-kit/util"
 
 type Docker struct {
 	pool       *dockertest.Pool
@@ -24,7 +26,7 @@ func StartDocker() (*Docker, error) {
 
 func (d *Docker) RunContainer(image string, version string, env []string) (*Container, error) {
 	// pulls the postgres image, creates a container based on it and runs it
-	resource, err := d.pool.Run("postgres", "12", []string{"POSTGRES_PASSWORD=secret"})
+	resource, err := d.pool.Run(image, version, env)
 	if err != nil {
 		return nil, err
 	}
@@ -40,14 +42,14 @@ func (c *Container) WaitForRunning(waitFunc func() error) error {
 }
 
 func (d *Docker) Close() error {
-	var err error
+	err := new(util.ErrorCollector)
 
 	for _, c := range d.containers {
 		e := c.Close()
 		if e != nil {
-			err = e
+			err.Collect(e)
 		}
 	}
 
-	return err // Return last error or nil if no errors happened
+	return err
 }
