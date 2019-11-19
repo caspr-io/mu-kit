@@ -20,11 +20,11 @@ type Server struct {
 }
 
 func NewServer(config *Config) (*Server, error) {
-	logger := log.Logger.With().Str("component", "µ-kit gRPC").Logger()
+	logger := log.Logger.With().Str("component", "rpc").Logger()
 
 	logger.Info().Interface("config", config).Msg("Initializing µ-Kit gRPC server...")
 
-	listener, err := startTcpListener(logger, config)
+	listener, err := startTCPListener(config)
 	if err != nil {
 		return nil, err
 	}
@@ -33,7 +33,7 @@ func NewServer(config *Config) (*Server, error) {
 }
 
 func CreateServer(listener net.Listener) (*Server, error) {
-	logger := log.Logger.With().Str("component", "µ-kit-rpc").Logger()
+	logger := log.Logger.With().Str("component", "rpc").Logger()
 
 	logger.Info().Msg("Initializing µ-Kit gRPC server...")
 
@@ -48,7 +48,7 @@ func (s *Server) Register(service Service) {
 	s.grpcServer.RegisterService(service.RPCServiceDesc(), service)
 }
 
-func startTcpListener(logger zerolog.Logger, config *Config) (net.Listener, error) {
+func startTCPListener(config *Config) (net.Listener, error) {
 	address := fmt.Sprintf(":%d", config.Port)
 
 	listener, err := net.Listen("tcp", address)

@@ -1,6 +1,8 @@
 package streaming
 
 import (
+	"context"
+
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
@@ -15,7 +17,7 @@ func NewTestRiver() (*River, error) {
 
 	pub, sub := goChannelPubSub(watermillLogger)
 
-	return CreateRiver(logger, watermillLogger, sub, pub)
+	return CreateRiver(logger, sub, pub)
 }
 
 func goChannelPubSub(logger watermill.LoggerAdapter) (message.Publisher, message.Subscriber) {
@@ -33,8 +35,8 @@ type ChannelMessageHandler struct {
 
 func (tmh *ChannelMessageHandler) NewMsg() proto.Message { return tmh.newMsg() }
 func (tmh *ChannelMessageHandler) Name() string          { return "ChannelMessageHandler" }
-func (tmh *ChannelMessageHandler) Handle(ctx *MessageContext, m proto.Message) error {
-	ctx.Logger.Info().Interface("message", m).Send()
+func (tmh *ChannelMessageHandler) Handle(ctx context.Context, m proto.Message) error {
+	log.Ctx(ctx).Info().Interface("message", m).Send()
 	tmh.Received <- m
 
 	return nil

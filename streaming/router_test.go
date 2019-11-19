@@ -18,7 +18,7 @@ type TestMessageHandler struct {
 
 func (th *TestMessageHandler) Name() string          { return "TestMessageHandler" }
 func (th *TestMessageHandler) NewMsg() proto.Message { return &TestMessage{} }
-func (th *TestMessageHandler) Handle(ctx *MessageContext, m proto.Message) error {
+func (th *TestMessageHandler) Handle(ctx context.Context, m proto.Message) error {
 	defer th.wg.Done()
 	th.messages = append(th.messages, *m.(*TestMessage))
 
@@ -76,8 +76,9 @@ func TestShouldReceiveAllPublishedMessage(t *testing.T) {
 func makeRouter(t *testing.T) *MuRouter {
 	logger := NewZerologLogger(&log.Logger)
 	pubSub := gochannel.NewGoChannel(gochannel.Config{}, logger)
+	ctx := log.Logger.WithContext(context.Background())
 
-	router, err := NewRouter(context.Background(), pubSub, pubSub, log.Logger)
+	router, err := NewRouter(ctx, pubSub, pubSub)
 	if err != nil {
 		t.Error(err)
 	}

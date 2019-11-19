@@ -3,7 +3,6 @@ package streaming
 import (
 	"context"
 
-	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/gogo/protobuf/proto"
 	"github.com/rs/zerolog"
@@ -25,7 +24,7 @@ type River struct {
 }
 
 func NewRiver(config *Config) (*River, error) {
-	logger := log.Logger.With().Str("component", "µ-kit Streaming").Logger()
+	logger := log.Logger.With().Str("component", "streaming").Logger()
 
 	logger.Info().Interface("config", config).Msg("Initializing µ-Kit Streaming system...")
 
@@ -50,11 +49,12 @@ func NewRiver(config *Config) (*River, error) {
 		return nil, err
 	}
 
-	return CreateRiver(logger, watermillLogger, subscriber, publisher)
+	return CreateRiver(logger, subscriber, publisher)
 }
 
-func CreateRiver(logger zerolog.Logger, watermillLogger watermill.LoggerAdapter, subscriber message.Subscriber, publisher message.Publisher) (*River, error) {
-	router, err := NewRouter(context.Background(), publisher, subscriber, logger)
+func CreateRiver(logger zerolog.Logger, subscriber message.Subscriber, publisher message.Publisher) (*River, error) {
+	ctx := logger.WithContext(context.Background())
+	router, err := NewRouter(ctx, publisher, subscriber)
 	if err != nil {
 		return nil, err
 	}

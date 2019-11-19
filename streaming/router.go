@@ -4,8 +4,9 @@ import (
 	"context"
 
 	"github.com/ThreeDotsLabs/watermill/message"
+	"github.com/caspr-io/mu-kit/util"
 	"github.com/golang/protobuf/proto"
-	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"github.com/satori/uuid"
 )
 
@@ -14,7 +15,6 @@ type Publisher interface {
 }
 
 type MuRouter struct {
-	logger        zerolog.Logger
 	publisher     message.Publisher
 	subscriber    message.Subscriber
 	context       context.Context
@@ -25,9 +25,8 @@ type MuRouter struct {
 func NewRouter(
 	context context.Context,
 	publisher message.Publisher,
-	subscriber message.Subscriber,
-	logger zerolog.Logger) (*MuRouter, error) {
-	return &MuRouter{logger, publisher, subscriber, context, DefaultTopicName, []*Subscription{}}, nil
+	subscriber message.Subscriber) (*MuRouter, error) {
+	return &MuRouter{publisher, subscriber, context, DefaultTopicName, []*Subscription{}}, nil
 }
 
 // Subscribe subscribes a MuMessageHandler to its specific topic and will call the Handle
@@ -35,7 +34,7 @@ func NewRouter(
 func (r *MuRouter) Subscribe(mh MessageHandler) error {
 	m := mh.NewMsg()
 	topic := r.topicName(m)
-	r.logger.Info().Str("handler", mh.Name()).Str("topic", topic).Msg("Subscribe to messages")
+	log.Ctx(r.context).Info().Str("handler", mh.Name()).Str("topic", topic).Msg("Subscribe to messages")
 
 	subscription, err := r.subscriber.Subscribe(r.context, topic)
 	if err != nil {
@@ -44,7 +43,7 @@ func (r *MuRouter) Subscribe(mh MessageHandler) error {
 
 	subscriptionRunning := make(chan struct{})
 
-	s := &Subscription{handler: mh, msgChannel: subscription, topic: topic, logger: r.logger, running: subscriptionRunning}
+	s := &Subscription{handler: mh, msgChannel: subscription, topic: topic, context: r.context, running: subscriptionRunning}
 	r.subscriptions = append(r.subscriptions, s)
 	go s.Run()
 
@@ -77,20 +76,18 @@ func (r *MuRouter) Start() {
 }
 
 func (r *MuRouter) Close() error {
+	errorCollector := new(util.ErrorCollector)
+	log.Ctx(r.context).Info().Msg("Closing Router...")
+
 	for _, s := range r.subscriptions {
-		s.Close()
+		errorCollector.Collect(s.Close())
 	}
 
-	pubErr := r.publisher.Close()
-	subErr := r.subscriber.Close()
+	errorCollector.Collect(r.publisher.Close())
+	errorCollector.Collect(r.subscriber.Close())
 
-	if pubErr != nil {
-		return pubErr
+	if errorCollector.HasErrors() {
+		return errorCollector
 	}
-
-	if subErr != nil {
-		return subErr
-	}
-
 	return nil
 }

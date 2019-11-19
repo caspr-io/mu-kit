@@ -1,11 +1,12 @@
 package streaming
 
 import (
+	"context"
 	"io"
 
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/golang/protobuf/proto"
-	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 var _ io.Closer = (*Subscription)(nil) // compile-time check for io.Closer assignability
@@ -14,12 +15,12 @@ type Subscription struct {
 	handler    MessageHandler
 	msgChannel <-chan *message.Message
 	topic      string
-	logger     zerolog.Logger
+	context    context.Context
 	running    chan struct{}
 }
 
 func (s *Subscription) Run() {
-	log := s.logger.With().Str("handler", s.handler.Name()).Logger()
+	log := log.Ctx(s.context).With().Str("handler", s.handler.Name()).Logger()
 
 	close(s.running)
 
@@ -36,7 +37,7 @@ func (s *Subscription) Run() {
 			m.Nack()
 		}
 
-		c := &MessageContext{m.Context(), &messageLogger}
+		c := messageLogger.WithContext(m.Context())
 		if err := s.handler.Handle(c, protoMsg); err != nil {
 			topicLogger.Error().Err(err).Str("uuid", m.UUID).Msg("Error handling message.")
 			m.Nack()
@@ -48,7 +49,7 @@ func (s *Subscription) Run() {
 
 func (s *Subscription) Close() error {
 	if c, ok := s.handler.(io.Closer); ok {
-		s.logger.Info().Str("handler", s.handler.Name()).Msg("Closing the handler...")
+		log.Ctx(s.context).Info().Str("handler", s.handler.Name()).Msg("Closing the handler...")
 		return c.Close()
 	}
 	return nil
