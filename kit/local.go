@@ -1,33 +1,33 @@
 package kit
 
 import (
-	"github.com/caspr-io/mu-kit/river"
 	"github.com/caspr-io/mu-kit/rpc"
+	"github.com/caspr-io/mu-kit/streaming"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/test/bufconn"
 )
 
-func NewLocalTestKitServer(name string, f func(*rpc.SubSystem, *river.SubSystem) rpc.Service) (*MuKitServer, *grpc.ClientConn) {
+func NewLocalTestKitServer(name string, f func(*rpc.Server, *streaming.River) rpc.Service) (*MuKitServer, *grpc.ClientConn) {
 	initLogger(name)
-	log.Logger.Info().Msg("Starting local µ-Kit server..")
+	log.Logger.Info().Msg("Starting local µ-Kit server...")
 
-	riverSystem, err := river.NewTestRiver()
+	river, err := streaming.NewTestRiver()
 	if err != nil {
-		log.Logger.Fatal().Err(err).Msg("Failed to start River subsystem")
+		log.Logger.Fatal().Err(err).Msg("Failed to initialize µ-Kit Streaming system")
 	}
 
 	listener := bufconn.Listen(10)
 
-	rpcSystem, err := rpc.NewWithListener(listener)
+	rpcServer, err := rpc.CreateServer(listener)
 	if err != nil {
-		log.Logger.Fatal().Err(err).Msg("Failed to start RPC subsystem")
+		log.Logger.Fatal().Err(err).Msg("Failed to initialize µ-Kit gRPC server")
 	}
 
-	rpcService := f(rpcSystem, riverSystem)
-	rpcSystem.Register(rpcService)
+	rpcService := f(rpcServer, river)
+	rpcServer.Register(rpcService)
 
-	server := NewWithSubSystems(&MuKitConfig{}, rpcSystem, riverSystem)
+	server := CreateKit(&MuKitConfig{}, rpcServer, river)
 
 	return server, rpc.DialConnection(listener)
 }

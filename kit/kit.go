@@ -6,8 +6,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/caspr-io/mu-kit/river"
 	"github.com/caspr-io/mu-kit/rpc"
+	"github.com/caspr-io/mu-kit/streaming"
 	"github.com/caspr-io/mu-kit/util"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/rs/zerolog"
@@ -16,10 +16,10 @@ import (
 )
 
 type MuKitServer struct {
-	config  MuServerConfig
-	rpc     *rpc.SubSystem
-	river   *river.SubSystem
-	closeWg sync.WaitGroup
+	config    MuServerConfig
+	rpcServer *rpc.Server
+	river     *streaming.River
+	closeWg   sync.WaitGroup
 }
 
 // Initizalize the Mu-Kit environment
@@ -61,21 +61,21 @@ func New(name string, config interface{}) (*MuKitServer, error) {
 		return nil, fmt.Errorf("passed config %T is not a MuKitConfig", config)
 	}
 
-	rpcSystem, err := rpc.New(cfg.GrpcConfig())
+	rpcServer, err := rpc.NewServer(cfg.RpcConfig())
 	if err != nil {
 		return nil, err
 	}
 
-	riverSystem, err := river.New(cfg.RiverConfig())
+	river, err := streaming.NewRiver(cfg.StreamingConfig())
 	if err != nil {
 		return nil, err
 	}
 
-	return NewWithSubSystems(cfg, rpcSystem, riverSystem), nil
+	return CreateKit(cfg, rpcServer, river), nil
 }
 
-func NewWithSubSystems(config MuServerConfig, rpcSubSystem *rpc.SubSystem, riverSubSystem *river.SubSystem) *MuKitServer {
-	return &MuKitServer{config, rpcSubSystem, riverSubSystem, sync.WaitGroup{}}
+func CreateKit(config MuServerConfig, rpcServer *rpc.Server, river *streaming.River) *MuKitServer {
+	return &MuKitServer{config, rpcServer, river, sync.WaitGroup{}}
 }
 
 func (s *MuKitServer) Run() {
@@ -84,7 +84,7 @@ func (s *MuKitServer) Run() {
 
 	go s.river.Run()
 
-	go s.rpc.Run()
+	go s.rpcServer.Run()
 
 	if err := SignalsHandler(s, log.Logger); err != nil {
 		s.Close()
@@ -96,17 +96,17 @@ func (s *MuKitServer) Run() {
 func (s *MuKitServer) Close() error {
 	defer s.closeWg.Done()
 	s.river.Close()
-	s.rpc.Close()
+	s.rpcServer.Close()
 
 	return nil
 }
 
-func (s *MuKitServer) RiverSystem() *river.SubSystem {
+func (s *MuKitServer) River() *streaming.River {
 	return s.river
 }
 
-func (s *MuKitServer) RPCSystem() *rpc.SubSystem {
-	return s.rpc
+func (s *MuKitServer) RPCServer() *rpc.Server {
+	return s.rpcServer
 }
 
 func (s *MuKitServer) Config() MuServerConfig {

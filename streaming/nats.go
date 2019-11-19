@@ -1,4 +1,4 @@
-package river
+package streaming
 
 import (
 	"github.com/ThreeDotsLabs/watermill"
@@ -7,7 +7,7 @@ import (
 	"github.com/nats-io/stan.go"
 )
 
-func connectToStan(config *SubSystemConfig) (*stan.Conn, error) {
+func connectToStan(config *Config) (*stan.Conn, error) {
 	conn, err := stan.Connect(config.NatsClusterID, config.NatsClientID, stan.NatsURL(config.NatsURL))
 
 	if err != nil {
@@ -17,7 +17,7 @@ func connectToStan(config *SubSystemConfig) (*stan.Conn, error) {
 	return &conn, nil
 }
 
-func newNatsPublisher(config *SubSystemConfig, conn *stan.Conn, logger watermill.LoggerAdapter) (message.Publisher, error) {
+func newNatsPublisher(config *Config, conn *stan.Conn, logger watermill.LoggerAdapter) (message.Publisher, error) {
 	publisher, err := nats.NewStreamingPublisherWithStanConn(*conn, nats.StreamingPublisherPublishConfig{
 		Marshaler: nats.GobMarshaler{},
 	}, logger)
@@ -28,7 +28,7 @@ func newNatsPublisher(config *SubSystemConfig, conn *stan.Conn, logger watermill
 	return publisher, nil
 }
 
-func newNatsSubscriber(config *SubSystemConfig, conn *stan.Conn, logger watermill.LoggerAdapter) (message.Subscriber, error) {
+func newNatsSubscriber(config *Config, conn *stan.Conn, logger watermill.LoggerAdapter) (message.Subscriber, error) {
 	subscriber, err := nats.NewStreamingSubscriberWithStanConn(*conn, nats.StreamingSubscriberSubscriptionConfig{
 		QueueGroup:  config.NatsQueueGroup,
 		Unmarshaler: nats.GobMarshaler{},

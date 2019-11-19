@@ -1,6 +1,6 @@
 ROOTPROJECT ?= ../root
 APIPROJECT = .
-PROTOBUF_FILES=river/sample.pb.go
+PROTOBUF_FILES=streaming/sample.pb.go
 include ${ROOTPROJECT}/include.mk
 
 .PHONY: clean build test

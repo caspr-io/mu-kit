@@ -1,4 +1,4 @@
-package river
+package streaming
 
 import (
 	"context"
@@ -32,7 +32,7 @@ func NewRouter(
 
 // Subscribe subscribes a MuMessageHandler to its specific topic and will call the Handle
 // function for each incoming deserialized message.
-func (r *MuRouter) Subscribe(mh MuMessageHandler) error {
+func (r *MuRouter) Subscribe(mh MessageHandler) error {
 	m := mh.NewMsg()
 	topic := r.topicName(m)
 	r.logger.Info().Str("handler", mh.Name()).Str("topic", topic).Msg("Subscribe to messages")

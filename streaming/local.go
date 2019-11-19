@@ -1,4 +1,4 @@
-package river
+package streaming
 
 import (
 	"github.com/ThreeDotsLabs/watermill"
@@ -8,14 +8,14 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func NewTestRiver() (*SubSystem, error) {
+func NewTestRiver() (*River, error) {
 	logger := log.Logger.With().Str("component", "µ-kit Streaming").Logger()
 
 	watermillLogger := NewZerologLogger(&logger)
 
 	pub, sub := goChannelPubSub(watermillLogger)
 
-	return NewSubSystem(logger, watermillLogger, sub, pub)
+	return CreateRiver(logger, watermillLogger, sub, pub)
 }
 
 func goChannelPubSub(logger watermill.LoggerAdapter) (message.Publisher, message.Subscriber) {

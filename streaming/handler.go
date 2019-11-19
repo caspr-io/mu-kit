@@ -1,4 +1,4 @@
-package river
+package streaming
 
 import (
 	"context"
@@ -12,9 +12,9 @@ type MessageContext struct {
 	Logger *zerolog.Logger
 }
 
-// A MuMessageHandler can optionally implement io.Closer.
-// This ensures that its Close() method will be called when the river.Subscription is Closed
-type MuMessageHandler interface {
+// A MessageHandler can optionally implement io.Closer.
+// This ensures that its Close() method will be called when the streaming.Subscription is Closed
+type MessageHandler interface {
 	Name() string
 	NewMsg() proto.Message
 	Handle(ctx *MessageContext, m proto.Message) error

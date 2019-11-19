@@ -1,4 +1,4 @@
-package river
+package streaming
 
 import (
 	"io"
@@ -11,7 +11,7 @@ import (
 var _ io.Closer = (*Subscription)(nil) // compile-time check for io.Closer assignability
 
 type Subscription struct {
-	handler    MuMessageHandler
+	handler    MessageHandler
 	msgChannel <-chan *message.Message
 	topic      string
 	logger     zerolog.Logger

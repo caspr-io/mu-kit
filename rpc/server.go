@@ -9,21 +9,20 @@ import (
 	"google.golang.org/grpc"
 )
 
-type SubSystemConfig struct {
+type Config struct {
 	Port int `split_words:"true" required:"true"`
 }
 
-type SubSystem struct {
+type Server struct {
 	grpcServer *grpc.Server
 	listener   net.Listener
 	logger     zerolog.Logger
 }
 
-// New creates a new RPC SubSystem
-func New(config *SubSystemConfig) (*SubSystem, error) {
-	logger := log.Logger.With().Str("component", "µ-kit RPC").Logger()
+func NewServer(config *Config) (*Server, error) {
+	logger := log.Logger.With().Str("component", "µ-kit gRPC").Logger()
 
-	logger.Info().Interface("config", config).Msg("Initializing µ-Kit RPC subsystem...")
+	logger.Info().Interface("config", config).Msg("Initializing µ-Kit gRPC server...")
 
 	listener, err := startTcpListener(logger, config)
 	if err != nil {
@@ -33,23 +32,23 @@ func New(config *SubSystemConfig) (*SubSystem, error) {
 	return newServer(logger, listener), nil
 }
 
-func NewWithListener(listener net.Listener) (*SubSystem, error) {
+func CreateServer(listener net.Listener) (*Server, error) {
 	logger := log.Logger.With().Str("component", "µ-kit-rpc").Logger()
 
-	logger.Info().Msg("Initializing µ-Kit RPC subsystem...")
+	logger.Info().Msg("Initializing µ-Kit gRPC server...")
 
 	return newServer(logger, listener), nil
 }
 
-func newServer(logger zerolog.Logger, listener net.Listener) *SubSystem {
-	return &SubSystem{grpcServer: grpc.NewServer(), listener: listener, logger: logger}
+func newServer(logger zerolog.Logger, listener net.Listener) *Server {
+	return &Server{grpcServer: grpc.NewServer(), listener: listener, logger: logger}
 }
 
-func (s *SubSystem) Register(service Service) {
+func (s *Server) Register(service Service) {
 	s.grpcServer.RegisterService(service.RPCServiceDesc(), service)
 }
 
-func startTcpListener(logger zerolog.Logger, config *SubSystemConfig) (net.Listener, error) {
+func startTcpListener(logger zerolog.Logger, config *Config) (net.Listener, error) {
 	address := fmt.Sprintf(":%d", config.Port)
 
 	listener, err := net.Listen("tcp", address)
@@ -61,18 +60,19 @@ func startTcpListener(logger zerolog.Logger, config *SubSystemConfig) (net.Liste
 }
 
 // Run starts the gRPC server using the configured listener
-func (s *SubSystem) Run() {
+func (s *Server) Run() {
 	s.logger.Info().Msg("Starting µ-Kit gRPC server...")
 
 	if err := s.grpcServer.Serve(s.listener); err != nil {
-		s.logger.Fatal().Err(err).Msg("Cannot serve µ-Kit server")
+		s.logger.Fatal().Err(err).Msg("Cannot serve µ-Kit gRPC server")
 	}
 
-	s.logger.Info().Msg("gRPC server has shut down")
+	s.logger.Info().Msg("µ-Kit gRPC server has shut down")
 }
 
-func (s *SubSystem) Close() error {
+func (s *Server) Close() error {
 	s.logger.Info().Msg("Closing µ-Kit gRPC server...")
 	s.grpcServer.Stop()
+
 	return nil
 }

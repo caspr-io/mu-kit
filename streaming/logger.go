@@ -1,4 +1,4 @@
-package river
+package streaming
 
 import (
 	"github.com/ThreeDotsLabs/watermill"

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package river;
+package streaming;
 
 message TestMessage {
     string contents = 1;

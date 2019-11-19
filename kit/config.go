@@ -1,24 +1,24 @@
 package kit
 
 import (
-	"github.com/caspr-io/mu-kit/river"
 	"github.com/caspr-io/mu-kit/rpc"
+	"github.com/caspr-io/mu-kit/streaming"
 )
 
 type MuServerConfig interface {
-	GrpcConfig() *rpc.SubSystemConfig
-	RiverConfig() *river.SubSystemConfig
+	RpcConfig() *rpc.Config
+	StreamingConfig() *streaming.Config
 }
 
 type MuKitConfig struct {
-	Grpc  *rpc.SubSystemConfig
-	River *river.SubSystemConfig `envconfig:"PUBSUB"`
+	Grpc      *rpc.Config
+	Streaming *streaming.Config
 }
 
-func (c *MuKitConfig) GrpcConfig() *rpc.SubSystemConfig {
+func (c *MuKitConfig) RpcConfig() *rpc.Config {
 	return c.Grpc
 }
 
-func (c *MuKitConfig) RiverConfig() *river.SubSystemConfig {
-	return c.River
+func (c *MuKitConfig) StreamingConfig() *streaming.Config {
+	return c.Streaming
 }
