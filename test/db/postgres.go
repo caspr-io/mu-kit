@@ -26,7 +26,7 @@ func PostgresContainer(migrations string, pgDB *pg.DB) func(*docker.Docker) (io.
 
 		*pgDB = *conn // Redirect the pointer to the newly created connection
 
-		if err := migratePostgres(pgDB, "file://../db/migrations"); err != nil {
+		if err := migratePostgres(pgDB, migrations); err != nil {
 			return pgDB, err
 		}
 
