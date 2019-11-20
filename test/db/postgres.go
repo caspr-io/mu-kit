@@ -1,6 +1,7 @@
 package db
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"io"
@@ -25,6 +26,8 @@ func PostgresContainer(migrations string, pgDB *pg.DB) func(*docker.Docker) (io.
 		}
 
 		*pgDB = *conn // Redirect the pointer to the newly created connection
+
+		pgDB.AddQueryHook(dbLogger{})
 
 		if err := migratePostgres(pgDB, migrations); err != nil {
 			return pgDB, err
@@ -97,4 +100,21 @@ func migratePostgres(pgDB *pg.DB, migrations string) error {
 	defer m.Close()
 
 	return m.Up()
+}
+
+type dbLogger struct{}
+
+func (d dbLogger) BeforeQuery(c context.Context, q *pg.QueryEvent) (context.Context, error) {
+	fq, err := q.FormattedQuery()
+	if err == nil {
+		log.Info().Str("q", fq).Msg("Executing query")
+	} else {
+		log.Error().Err(err).Msg("Cannot format query")
+	}
+
+	return c, nil
+}
+
+func (d dbLogger) AfterQuery(c context.Context, q *pg.QueryEvent) error {
+	return nil
 }
