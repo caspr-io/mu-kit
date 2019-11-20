@@ -55,6 +55,7 @@ func NewRiver(config *Config) (*River, error) {
 func CreateRiver(logger zerolog.Logger, subscriber message.Subscriber, publisher message.Publisher) (*River, error) {
 	ctx := logger.WithContext(context.Background())
 	router, err := NewRouter(ctx, publisher, subscriber)
+
 	if err != nil {
 		return nil, err
 	}
