@@ -20,29 +20,32 @@ type Subscription struct {
 }
 
 func (s *Subscription) Run() {
-	log := log.Ctx(s.context).With().Str("handler", s.handler.Name()).Logger()
-
 	close(s.running)
 
 	for m := range s.msgChannel {
-		messageLogger := log.With().Str("message_uuid", m.UUID).Logger()
-		topicLogger := messageLogger.With().Str("topic", s.topic).Logger()
-		topicLogger.Info().Msg("Received message...")
+		logger := log.Ctx(s.context).With().Str("uuid", m.UUID).Logger()
+		logger.Debug().
+			Str("handler", s.handler.Name()).
+			Str("topic", s.topic).
+			Msg("Received message")
 
 		protoMsg := s.handler.NewMsg()
-		payload := m.Payload
 
-		if err := proto.Unmarshal(payload, protoMsg); err != nil {
-			topicLogger.Error().Err(err).Msg("Could not deserialize message payload")
+		err := proto.Unmarshal(m.Payload, protoMsg)
+		if err != nil {
+			logger.Error().Err(err).Msg("Could not deserialize message payload")
 			m.Nack()
 		}
 
-		c := messageLogger.WithContext(m.Context())
-		if err := s.handler.Handle(c, protoMsg); err != nil {
-			topicLogger.Error().Err(err).Str("uuid", m.UUID).Msg("Error handling message.")
+		logger.Trace().Interface("payload", protoMsg).Send()
+
+		err = s.handler.Handle(logger.WithContext(m.Context()), protoMsg)
+		if err != nil {
+			logger.Error().Err(err).Msg("Could not handle message, nacking it")
 			m.Nack()
 		}
 
+		logger.Debug().Msg("Handled message, acking it")
 		m.Ack()
 	}
 }

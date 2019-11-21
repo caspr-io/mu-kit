@@ -11,7 +11,7 @@ import (
 )
 
 type Publisher interface {
-	Publish(msgs ...proto.Message) error
+	Publish(ctx context.Context, msgs ...proto.Message) error
 }
 
 type MuRouter struct {
@@ -34,7 +34,7 @@ func NewRouter(
 func (r *MuRouter) Subscribe(mh MessageHandler) error {
 	m := mh.NewMsg()
 	topic := r.topicName(m)
-	log.Ctx(r.context).Info().Str("handler", mh.Name()).Str("topic", topic).Msg("Subscribe to messages")
+	log.Ctx(r.context).Info().Str("handler", mh.Name()).Str("topic", topic).Msg("Subscribing to messages")
 
 	subscription, err := r.subscriber.Subscribe(r.context, topic)
 	if err != nil {
@@ -53,17 +53,26 @@ func (r *MuRouter) Subscribe(mh MessageHandler) error {
 }
 
 // Publish publishes one or more messages on their respective topics.
-func (r *MuRouter) Publish(msgs ...proto.Message) error {
-	for _, msg := range msgs {
-		topic := r.topicName(msg)
+func (r *MuRouter) Publish(ctx context.Context, msgs ...proto.Message) error {
+	for _, protoMsg := range msgs {
+		topic := r.topicName(protoMsg)
 
-		payload, err := proto.Marshal(msg)
+		uuid := uuid.NewV4().String()
+
+		log.Ctx(ctx).Debug().
+			Str("pub-topic", topic).
+			Str("pub-uuid", uuid).
+			Msg("Publishing message")
+		log.Ctx(ctx).Trace().Interface("payload", protoMsg).Send()
+
+		payloadBytes, err := proto.Marshal(protoMsg)
 		if err != nil {
 			return err
 		}
 
-		watermillMessage := message.NewMessage(uuid.NewV4().String(), payload)
-		if err := r.publisher.Publish(topic, watermillMessage); err != nil {
+		msg := message.NewMessage(uuid, payloadBytes)
+
+		if err := r.publisher.Publish(topic, msg); err != nil {
 			return err
 		}
 	}

@@ -68,8 +68,8 @@ func CreateRiver(logger zerolog.Logger, subscriber message.Subscriber, publisher
 	}, nil
 }
 
-func (s *River) Publish(msg proto.Message) error {
-	return s.router.Publish(msg)
+func (s *River) Publish(ctx context.Context, msg proto.Message) error {
+	return s.router.Publish(ctx, msg)
 }
 
 func (s *River) Publisher() Publisher {
