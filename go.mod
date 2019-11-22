@@ -9,12 +9,15 @@ require (
 	github.com/gogo/protobuf v1.2.1
 	github.com/golang-migrate/migrate/v4 v4.6.2
 	github.com/golang/protobuf v1.3.2
+	github.com/gorilla/websocket v1.4.1 // indirect
+	github.com/improbable-eng/grpc-web v0.11.0
 	github.com/joho/godotenv v1.3.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/nats-io/nats-server/v2 v2.1.0 // indirect
 	github.com/nats-io/nats-streaming-server v0.16.2 // indirect
 	github.com/nats-io/stan.go v0.5.0
 	github.com/ory/dockertest/v3 v3.5.2
+	github.com/rs/cors v1.7.0 // indirect
 	github.com/rs/zerolog v1.17.2
 	github.com/satori/uuid v1.2.0
 	google.golang.org/genproto v0.0.0-20190716160619-c506a9f90610 // indirect

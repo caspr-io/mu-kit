@@ -19,7 +19,7 @@ func NewLocalTestKitServer(name string, f func(*rpc.Server, *streaming.River) rp
 
 	listener := bufconn.Listen(10)
 
-	rpcServer, err := rpc.CreateServer(listener)
+	rpcServer, err := rpc.NewTestServer(listener)
 	if err != nil {
 		log.Logger.Fatal().Err(err).Msg("Failed to initialize µ-Kit gRPC server")
 	}
