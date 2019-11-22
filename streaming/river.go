@@ -11,9 +11,9 @@ import (
 
 type Config struct {
 	NatsURL        string `split_words:"true" required:"true"`
-	NatsClusterID  string `split_words:"true" required:"true"`
-	NatsClientID   string `split_words:"true" required:"true"`
-	NatsQueueGroup string `split_words:"true" required:"true"`
+	StanClusterID  string `split_words:"true" required:"true"`
+	StanClientID   string `split_words:"true" required:"true"`
+	StanQueueGroup string `split_words:"true" required:"true"`
 }
 
 type River struct {

@@ -8,7 +8,7 @@ import (
 )
 
 func connectToStan(config *Config) (*stan.Conn, error) {
-	conn, err := stan.Connect(config.NatsClusterID, config.NatsClientID, stan.NatsURL(config.NatsURL))
+	conn, err := stan.Connect(config.StanClusterID, config.StanClientID, stan.NatsURL(config.NatsURL))
 
 	if err != nil {
 		return nil, err
@@ -17,7 +17,7 @@ func connectToStan(config *Config) (*stan.Conn, error) {
 	return &conn, nil
 }
 
-func newNatsPublisher(config *Config, conn *stan.Conn, logger watermill.LoggerAdapter) (message.Publisher, error) {
+func newNatsPublisher(_ *Config, conn *stan.Conn, logger watermill.LoggerAdapter) (message.Publisher, error) {
 	publisher, err := nats.NewStreamingPublisherWithStanConn(*conn, nats.StreamingPublisherPublishConfig{
 		Marshaler: nats.GobMarshaler{},
 	}, logger)
@@ -30,7 +30,7 @@ func newNatsPublisher(config *Config, conn *stan.Conn, logger watermill.LoggerAd
 
 func newNatsSubscriber(config *Config, conn *stan.Conn, logger watermill.LoggerAdapter) (message.Subscriber, error) {
 	subscriber, err := nats.NewStreamingSubscriberWithStanConn(*conn, nats.StreamingSubscriberSubscriptionConfig{
-		QueueGroup:  config.NatsQueueGroup,
+		QueueGroup:  config.StanQueueGroup,
 		Unmarshaler: nats.GobMarshaler{},
 	}, logger)
 	if err != nil {
