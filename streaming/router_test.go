@@ -41,7 +41,7 @@ func TestShouldReceiveOnePublishedMessage(t *testing.T) {
 	router.Start()
 	defer router.Close()
 
-	if err := router.Publish(&TestMessage{Contents: "test message"}); err != nil {
+	if err := router.Publish(context.Background(), &TestMessage{Contents: "test message"}); err != nil {
 		t.Error(err)
 	}
 
@@ -65,7 +65,7 @@ func TestShouldReceiveAllPublishedMessage(t *testing.T) {
 	router.Start()
 	defer router.Close()
 
-	if err := router.Publish(&TestMessage{Contents: "test message"}, &TestMessage{Contents: "2nd message"}, &TestMessage{Contents: "third message"}); err != nil {
+	if err := router.Publish(context.Background(), &TestMessage{Contents: "test message"}, &TestMessage{Contents: "2nd message"}, &TestMessage{Contents: "third message"}); err != nil {
 		t.Error(err)
 	}
 
