@@ -8,7 +8,7 @@ clean: go/clean
 build: protobuf/generate go/build
 test: protobuf/generate go/test
 
-# Targets for cluster/up and cluster/teardown
+# Dummy targets for cluster/up and cluster/teardown
 .PHONY: up down
 up:
 down:
