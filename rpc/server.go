@@ -117,8 +117,8 @@ func newGrpcWebServer(config *Config, grpcServer *grpc.Server) *http.Server {
 	return &http.Server{
 		Addr:           net.JoinHostPort(config.WebHost, strconv.Itoa(config.WebPort)),
 		Handler:        grpcWebHandler,
-		ReadTimeout:    10 * time.Second,
-		WriteTimeout:   10 * time.Second,
+		ReadTimeout:    5 * time.Minute,
+		WriteTimeout:   5 * time.Minute,
 		MaxHeaderBytes: 1 << 20,
 	}
 }
