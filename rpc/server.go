@@ -57,23 +57,6 @@ func NewServer(config *Config) (*Server, error) {
 		nil
 }
 
-// Creates a gRPC server for the supplied listener. A gRPC-Web proxy is not created
-func NewTestServer(listener net.Listener) (*Server, error) {
-	logger := log.Logger.With().Str("component", "rpc").Logger()
-
-	logger.Info().Msg("Initializing test gRPC server...")
-
-	return &Server{
-		config: Config{
-			Port:    7101,
-			WebPort: 0,
-		},
-		grpcServer:    grpc.NewServer(),
-		grpcListener:  listener,
-		grpcWebServer: nil,
-		logger:        logger}, nil
-}
-
 func newGrpcListener(config *Config) (net.Listener, error) {
 	listener, err := net.Listen("tcp", net.JoinHostPort(config.Host, strconv.Itoa(config.Port)))
 	if err != nil {

@@ -22,8 +22,7 @@ type MuKitServer struct {
 	closeWg   sync.WaitGroup
 }
 
-// Initizalize the Mu-Kit environment
-func initLogger(name string) {
+func InitLogger(name string) {
 	log.Logger = zerolog.New(os.Stdout).With().Str("service", name).Timestamp().Logger()
 	zerolog.TimestampFieldName = "t"
 	zerolog.LevelFieldName = "l"
@@ -49,7 +48,7 @@ func readConfigFromEnvironment(configPrefix string, config interface{}) func() e
 }
 
 func New(name string, config interface{}) (*MuKitServer, error) {
-	initLogger(name)
+	InitLogger(name)
 
 	if err := readConfig(name, config); err != nil {
 		return nil, err
@@ -71,10 +70,10 @@ func New(name string, config interface{}) (*MuKitServer, error) {
 		return nil, err
 	}
 
-	return CreateKit(cfg, rpcServer, river), nil
+	return createSystem(cfg, rpcServer, river), nil
 }
 
-func CreateKit(config MuServerConfig, rpcServer *rpc.Server, river *streaming.River) *MuKitServer {
+func createSystem(config MuServerConfig, rpcServer *rpc.Server, river *streaming.River) *MuKitServer {
 	return &MuKitServer{config, rpcServer, river, sync.WaitGroup{}}
 }
 

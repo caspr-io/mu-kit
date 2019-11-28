@@ -5,29 +5,34 @@ import (
 	"github.com/caspr-io/mu-kit/streaming"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/test/bufconn"
 )
 
-func NewLocalTestKitServer(name string, f func(*rpc.Server, *streaming.River) rpc.Service) (*MuKitServer, *grpc.ClientConn) {
-	initLogger(name)
+func NewTestSystem() (*MuKitServer, *grpc.ClientConn) {
 	log.Logger.Info().Msg("Starting local µ-Kit server...")
 
 	river, err := streaming.NewTestRiver()
 	if err != nil {
-		log.Logger.Fatal().Err(err).Msg("Failed to initialize µ-Kit Streaming system")
+		log.Logger.Fatal().Err(err).Msg("Cannot initialize local µ-Kit Streaming system")
 	}
 
-	listener := bufconn.Listen(10)
-
-	rpcServer, err := rpc.NewTestServer(listener)
+	rpcServer, clientConn, err := rpc.NewTestServer()
 	if err != nil {
-		log.Logger.Fatal().Err(err).Msg("Failed to initialize µ-Kit gRPC server")
+		log.Logger.Fatal().Err(err).Msg("Cannot initialize local µ-Kit gRPC server")
 	}
 
-	rpcService := f(rpcServer, river)
-	rpcServer.Register(rpcService)
+	server := createSystem(&MuKitConfig{}, rpcServer, river)
 
-	server := CreateKit(&MuKitConfig{}, rpcServer, river)
+	return server, clientConn
+}
 
-	return server, rpc.DialConnection(listener)
+// Deprecated: use kit.InitLogger() and kit.NewTestSystem() instead
+func NewLocalTestKitServer(name string, f func(*rpc.Server, *streaming.River) rpc.Service) (*MuKitServer, *grpc.ClientConn) {
+	InitLogger(name)
+
+	server, conn := NewTestSystem()
+
+	rpcService := f(server.RPCServer(), server.River())
+	server.RPCServer().Register(rpcService)
+
+	return server, conn
 }
