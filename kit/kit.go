@@ -60,7 +60,7 @@ func New(name string, config interface{}) (*MuKitServer, error) {
 		return nil, fmt.Errorf("passed config %T is not a MuKitConfig", config)
 	}
 
-	rpcServer, err := rpc.NewServer(cfg.RpcConfig())
+	rpcServer, err := rpc.NewServer(cfg.RPCConfig())
 	if err != nil {
 		return nil, err
 	}

@@ -6,7 +6,7 @@ import (
 )
 
 type MuServerConfig interface {
-	RpcConfig() *rpc.Config
+	RPCConfig() *rpc.Config
 	StreamingConfig() *streaming.Config
 }
 
@@ -15,7 +15,7 @@ type MuKitConfig struct {
 	Streaming *streaming.Config
 }
 
-func (c *MuKitConfig) RpcConfig() *rpc.Config {
+func (c *MuKitConfig) RPCConfig() *rpc.Config {
 	return c.Grpc
 }
 
