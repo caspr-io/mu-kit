@@ -8,12 +8,11 @@ import (
 )
 
 func TestKitIDStartsWithPrefix(t *testing.T) {
-	id := New("pref")
+	id := New("pref-")
 	assert.Assert(t, strings.HasPrefix(id, "pref-"))
 }
 
 func TestKitIDIs30CharactersLong(t *testing.T) {
-	id := New("pref")
-	println(id)
+	id := New("pref-")
 	assert.Equal(t, len(id), 30)
 }

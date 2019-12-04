@@ -27,5 +27,5 @@ func New(prefix string) string {
 		id = "0" + id
 	}
 
-	return prefix + "-" + id
+	return prefix + id
 }
