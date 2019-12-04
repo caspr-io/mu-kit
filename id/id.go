@@ -21,11 +21,5 @@ func (enc base36Encoder) Decode(s string) (uuid.UUID, error) {
 
 func New(prefix string) string {
 	enc := base36Encoder{}
-	id := shortuuid.NewWithEncoder(enc)
-
-	for len(id) < 25 {
-		id = "0" + id
-	}
-
-	return prefix + id
+	return prefix + shortuuid.NewWithEncoder(enc)
 }

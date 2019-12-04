@@ -12,7 +12,7 @@ func TestKitIDStartsWithPrefix(t *testing.T) {
 	assert.Assert(t, strings.HasPrefix(id, "pref-"))
 }
 
-func TestKitIDIs30CharactersLong(t *testing.T) {
+func TestKitIDIsNotMoreThen30CharactersLong(t *testing.T) {
 	id := New("pref-")
-	assert.Equal(t, len(id), 30)
+	assert.Assert(t, len(id) <= 30)
 }
