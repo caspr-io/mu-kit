@@ -3,13 +3,10 @@ package kit
 import (
 	"fmt"
 	"os"
-	"strings"
 	"sync"
 
 	"github.com/caspr-io/mu-kit/rpc"
 	"github.com/caspr-io/mu-kit/streaming"
-	"github.com/caspr-io/mu-kit/util"
-	"github.com/kelseyhightower/envconfig"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/rs/zerolog/pkgerrors"
@@ -30,27 +27,10 @@ func InitLogger(name string) {
 	zerolog.MessageFieldName = "m"
 }
 
-func readConfig(configPrefix string, config interface{}) error {
-	try := util.Try()
-	try.Try(readConfigFromEnvironment(configPrefix, config))
-
-	return try.Error()
-}
-
-func readConfigFromEnvironment(configPrefix string, config interface{}) func() error {
-	return func() error {
-		configPrefix = strings.ToUpper(strings.ReplaceAll(configPrefix, "-", "_"))
-		if err := envconfig.Process(configPrefix, config); err != nil {
-			return err
-		}
-		return nil
-	}
-}
-
 func New(name string, config interface{}) (*MuKitServer, error) {
 	InitLogger(name)
 
-	if err := readConfig(name, config); err != nil {
+	if err := ReadConfig(name, config); err != nil {
 		return nil, err
 	}
 

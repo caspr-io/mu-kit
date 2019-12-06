@@ -1,8 +1,11 @@
 package kit
 
 import (
+	"strings"
+
 	"github.com/caspr-io/mu-kit/rpc"
 	"github.com/caspr-io/mu-kit/streaming"
+	"github.com/kelseyhightower/envconfig"
 )
 
 type MuServerConfig interface {
@@ -21,4 +24,13 @@ func (c *MuKitConfig) RPCConfig() *rpc.Config {
 
 func (c *MuKitConfig) StreamingConfig() *streaming.Config {
 	return c.Streaming
+}
+
+func ReadConfig(configPrefix string, config interface{}) error {
+	configPrefix = strings.ToUpper(strings.ReplaceAll(configPrefix, "-", "_"))
+	if err := envconfig.Process(configPrefix, config); err != nil {
+		return err
+	}
+
+	return nil
 }
