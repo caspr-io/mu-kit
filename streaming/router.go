@@ -62,27 +62,36 @@ func (r *MuRouter) Publish(ctx context.Context, msgs ...proto.Message) error {
 	for _, protoMsg := range msgs {
 		topic := r.topicName(protoMsg)
 
-		uuid := uuid.NewV4().String()
-
-		log.Ctx(ctx).Debug().
-			Str("pub-topic", topic).
-			Str("pub-uuid", uuid).
-			Msg("Publishing message")
-		log.Ctx(ctx).Trace().Interface("payload", protoMsg).Send()
-
-		payloadBytes, err := proto.Marshal(protoMsg)
-		if err != nil {
-			return err
-		}
-
-		msg := message.NewMessage(uuid, payloadBytes)
-
-		if err := r.publisher.Publish(topic, msg); err != nil {
+		if err := r.PublishTopic(ctx, topic, protoMsg); err != nil {
 			return err
 		}
 	}
 
 	return nil
+}
+
+// PublishTopic publishes a protobuf message to a topic
+func (r *MuRouter) PublishTopic(ctx context.Context, topic string, protoMsg proto.Message) error {
+	uuid := uuid.NewV4().String()
+
+	log.Ctx(ctx).Debug().
+		Str("pub-topic", topic).
+		Str("pub-uuid", uuid).
+		Msg("Publishing message")
+	log.Ctx(ctx).Trace().Interface("payload", protoMsg).Send()
+
+	payloadBytes, err := proto.Marshal(protoMsg)
+	if err != nil {
+		return err
+	}
+
+	msg := message.NewMessage(uuid, payloadBytes)
+
+	if err := r.publisher.Publish(topic, msg); err != nil {
+		return err
+	}
+	return nil
+
 }
 
 // Start starts the MuRouter in the background using a go channel
@@ -91,6 +100,7 @@ func (r *MuRouter) Start() {
 
 func (r *MuRouter) Close() error {
 	errorCollector := new(util.ErrorCollector)
+
 	log.Ctx(r.context).Info().Msg("Closing Router...")
 
 	for _, s := range r.subscriptions {
