@@ -34,6 +34,11 @@ func NewRouter(
 func (r *MuRouter) Subscribe(mh MessageHandler) error {
 	m := mh.NewMsg()
 	topic := r.topicName(m)
+
+	return r.SubscribeTopic(mh, topic)
+}
+
+func (r *MuRouter) SubscribeTopic(mh MessageHandler, topic string) error {
 	log.Ctx(r.context).Info().Str("handler", mh.Name()).Str("topic", topic).Msg("Subscribing to messages")
 
 	subscription, err := r.subscriber.Subscribe(r.context, topic)
