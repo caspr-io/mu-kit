@@ -1,10 +1,11 @@
 package kit
 
 import (
-	"github.com/caspr-io/mu-kit/rpc"
-	"github.com/caspr-io/mu-kit/streaming"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
+
+	"github.com/caspr-io/mu-kit/rpc"
+	"github.com/caspr-io/mu-kit/streaming"
 )
 
 func NewTestSystem() (*MuKitServer, *grpc.ClientConn) {
@@ -23,16 +24,4 @@ func NewTestSystem() (*MuKitServer, *grpc.ClientConn) {
 	server := createSystem(&MuKitConfig{}, rpcServer, river)
 
 	return server, clientConn
-}
-
-// Deprecated: use kit.InitLogger() and kit.NewTestSystem() instead
-func NewLocalTestKitServer(name string, f func(*rpc.Server, *streaming.River) rpc.Service) (*MuKitServer, *grpc.ClientConn) {
-	InitLogger(name)
-
-	server, conn := NewTestSystem()
-
-	rpcService := f(server.RPCServer(), server.River())
-	server.RPCServer().Register(rpcService)
-
-	return server, conn
 }

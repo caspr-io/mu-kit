@@ -2,14 +2,12 @@ package kit
 
 import (
 	"fmt"
-	"os"
 	"sync"
 
+	mulog "github.com/caspr-io/mu-kit/log"
 	"github.com/caspr-io/mu-kit/rpc"
 	"github.com/caspr-io/mu-kit/streaming"
-	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"github.com/rs/zerolog/pkgerrors"
 )
 
 type MuKitServer struct {
@@ -19,17 +17,7 @@ type MuKitServer struct {
 	closeWg   sync.WaitGroup
 }
 
-func InitLogger(name string) {
-	log.Logger = zerolog.New(os.Stdout).With().Str("service", name).Timestamp().Logger()
-	zerolog.TimestampFieldName = "t"
-	zerolog.LevelFieldName = "l"
-	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
-	zerolog.MessageFieldName = "m"
-}
-
 func New(name string, config interface{}) (*MuKitServer, error) {
-	InitLogger(name)
-
 	if err := ReadConfig(name, config); err != nil {
 		return nil, err
 	}
@@ -39,6 +27,8 @@ func New(name string, config interface{}) (*MuKitServer, error) {
 	if !ok {
 		return nil, fmt.Errorf("passed config %T is not a MuKitConfig", config)
 	}
+
+	mulog.Init(name, cfg.LogConfig())
 
 	rpcServer, err := rpc.NewServer(cfg.RPCConfig())
 	if err != nil {
