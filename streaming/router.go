@@ -50,6 +50,7 @@ func (r *MuRouter) SubscribeTopic(mh MessageHandler, topic string) error {
 
 	s := &Subscription{handler: mh, msgChannel: subscription, topic: topic, context: r.context, running: subscriptionRunning}
 	r.subscriptions = append(r.subscriptions, s)
+
 	go s.Run()
 
 	<-subscriptionRunning
@@ -90,8 +91,8 @@ func (r *MuRouter) PublishTopic(ctx context.Context, topic string, protoMsg prot
 	if err := r.publisher.Publish(topic, msg); err != nil {
 		return err
 	}
-	return nil
 
+	return nil
 }
 
 // Start starts the MuRouter in the background using a go channel
@@ -113,5 +114,6 @@ func (r *MuRouter) Close() error {
 	if errorCollector.HasErrors() {
 		return errorCollector
 	}
+
 	return nil
 }
