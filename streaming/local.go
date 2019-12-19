@@ -11,7 +11,7 @@ import (
 )
 
 func NewTestRiver() (*River, error) {
-	logger := log.Logger.With().Str("component", "µ-kit Streaming").Logger()
+	logger := log.Logger.With().Str("component", "streaming").Logger()
 
 	watermillLogger := NewZerologLogger(&logger)
 

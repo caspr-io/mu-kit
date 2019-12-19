@@ -105,7 +105,7 @@ func (r *MuRouter) Start() {
 func (r *MuRouter) Close() error {
 	errorCollector := new(util.ErrorCollector)
 
-	log.Ctx(r.context).Trace().Msg("Closing Router...")
+	log.Ctx(r.context).Debug().Msg("Closing µ-Kit Streaming system...")
 
 	for _, s := range r.subscriptions {
 		errorCollector.Collect(s.Close())

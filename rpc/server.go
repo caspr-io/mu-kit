@@ -145,11 +145,11 @@ func (s *Server) runGrpcWebServer() {
 
 func (s *Server) Close() error {
 	if s.grpcWebServer != nil {
-		s.logger.Info().Msg("Shutting down gRPC-Web server...")
+		s.logger.Debug().Msg("Shutting down gRPC-Web server...")
 		s.grpcWebServer.Close()
 	}
 
-	s.logger.Info().Msg("Shutting down gRPC server...")
+	s.logger.Debug().Msg("Shutting down gRPC server...")
 	s.grpcServer.Stop()
 
 	return nil
