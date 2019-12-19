@@ -24,7 +24,7 @@ func (l *ZeroLogger) Debug(msg string, fields watermill.LogFields) {
 
 func (l *ZeroLogger) Trace(msg string, fields watermill.LogFields) {
 	if l.traceEnabled {
-		withFields(l.logger, fields).Debug().Str("trace", "true").Msg(msg)
+		withFields(l.logger, fields).Trace().Msg(msg)
 	}
 }
 

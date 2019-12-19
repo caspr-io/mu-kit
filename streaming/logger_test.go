@@ -53,8 +53,7 @@ func TestShouldLogWithFields(t *testing.T) {
 func TestShouldLogTrace(t *testing.T) {
 	b, l := InitTest()
 	l.Trace("testing message", nil)
-	assert.Assert(t, is.Contains(b.String(), "\"l\":\"debug\""))
-	assert.Assert(t, is.Contains(b.String(), "\"trace\":\"true\""))
+	assert.Assert(t, is.Contains(b.String(), "\"l\":\"trace\""))
 	assert.Assert(t, is.Contains(b.String(), "\"m\":\"testing message\""))
 }
 
@@ -85,7 +84,7 @@ func InitTest() (*strings.Builder, *ZeroLogger) {
 	zerolog.TimestampFieldName = "t"
 	zerolog.LevelFieldName = "l"
 	zerolog.MessageFieldName = "m"
-
+	zerolog.SetGlobalLevel(zerolog.TraceLevel)
 	b := strings.Builder{}
 	l := zerolog.New(&b)
 	zl := ZeroLogger{true, &l}
