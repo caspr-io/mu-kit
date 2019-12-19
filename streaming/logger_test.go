@@ -85,6 +85,7 @@ func InitTest() (*strings.Builder, *ZeroLogger) {
 	zerolog.LevelFieldName = "l"
 	zerolog.MessageFieldName = "m"
 	zerolog.SetGlobalLevel(zerolog.TraceLevel)
+
 	b := strings.Builder{}
 	l := zerolog.New(&b)
 	zl := ZeroLogger{true, &l}
