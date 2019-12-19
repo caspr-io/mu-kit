@@ -35,14 +35,14 @@ func NewRiver(config *Config) (*River, error) {
 		return nil, err
 	}
 
-	logger.Info().Msg("Building NATS Subscriber...")
+	logger.Trace().Msg("Building NATS Subscriber...")
 
 	subscriber, err := newNatsSubscriber(config, stanConn, watermillLogger)
 	if err != nil {
 		return nil, err
 	}
 
-	logger.Info().Msg("Building NATS Publisher...")
+	logger.Trace().Msg("Building NATS Publisher...")
 
 	publisher, err := newNatsPublisher(config, stanConn, watermillLogger)
 	if err != nil {

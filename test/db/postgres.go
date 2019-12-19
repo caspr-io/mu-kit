@@ -107,7 +107,7 @@ type dbLogger struct{}
 func (d dbLogger) BeforeQuery(c context.Context, q *pg.QueryEvent) (context.Context, error) {
 	fq, err := q.FormattedQuery()
 	if err == nil {
-		log.Info().Str("q", fq).Msg("Executing query")
+		log.Debug().Str("q", fq).Msg("Executing query")
 	} else {
 		log.Error().Err(err).Msg("Cannot format query")
 	}

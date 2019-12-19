@@ -24,7 +24,7 @@ func (s *Subscription) Run() {
 
 	for m := range s.msgChannel {
 		logger := log.Ctx(s.context).With().Str("uuid", m.UUID).Logger()
-		logger.Debug().
+		logger.Trace().
 			Str("handler", s.handler.Name()).
 			Str("topic", s.topic).
 			Msg("Received message")
@@ -45,15 +45,16 @@ func (s *Subscription) Run() {
 			m.Nack()
 		}
 
-		logger.Debug().Msg("Handled message, acking it")
+		logger.Trace().Msg("Handled message, acking it")
 		m.Ack()
 	}
 }
 
 func (s *Subscription) Close() error {
 	if c, ok := s.handler.(io.Closer); ok {
-		log.Ctx(s.context).Info().Str("handler", s.handler.Name()).Msg("Closing the handler...")
+		log.Ctx(s.context).Trace().Str("handler", s.handler.Name()).Msg("Closing the handler...")
 		return c.Close()
 	}
+
 	return nil
 }

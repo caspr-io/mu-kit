@@ -81,19 +81,19 @@ func newGrpcWebServer(config *Config, grpcServer *grpc.Server) *http.Server {
 			Logger()
 
 		if wrappedGrpc.IsAcceptableGrpcCorsRequest(req) {
-			logger.Debug().Msg("is a gRPC-Web CORS request")
+			logger.Trace().Msg("is a gRPC-Web CORS request")
 			wrappedGrpc.ServeHTTP(resp, req)
 			return
 		}
 
 		if wrappedGrpc.IsGrpcWebRequest(req) {
-			logger.Debug().Msg("is a gRPC-Web request")
+			logger.Trace().Msg("is a gRPC-Web request")
 			wrappedGrpc.ServeHTTP(resp, req)
 			return
 		}
 
 		// Fall back to other servers.
-		logger.Debug().Msg("s NOT a gRPC-Web or a gRPC-Web CORS request")
+		logger.Trace().Msg("s NOT a gRPC-Web or a gRPC-Web CORS request")
 		http.DefaultServeMux.ServeHTTP(resp, req)
 	})
 

@@ -39,7 +39,10 @@ func (r *MuRouter) Subscribe(mh MessageHandler) error {
 }
 
 func (r *MuRouter) SubscribeTopic(mh MessageHandler, topic string) error {
-	log.Ctx(r.context).Info().Str("handler", mh.Name()).Str("topic", topic).Msg("Subscribing to messages")
+	log.Ctx(r.context).Trace().
+		Str("handler", mh.Name()).
+		Str("topic", topic).
+		Msg("Subscribing to messages")
 
 	subscription, err := r.subscriber.Subscribe(r.context, topic)
 	if err != nil {
@@ -75,7 +78,7 @@ func (r *MuRouter) Publish(ctx context.Context, msgs ...proto.Message) error {
 func (r *MuRouter) PublishTopic(ctx context.Context, topic string, protoMsg proto.Message) error {
 	uuid := uuid.NewV4().String()
 
-	log.Ctx(ctx).Debug().
+	log.Ctx(ctx).Trace().
 		Str("pub-topic", topic).
 		Str("pub-uuid", uuid).
 		Msg("Publishing message")
@@ -102,7 +105,7 @@ func (r *MuRouter) Start() {
 func (r *MuRouter) Close() error {
 	errorCollector := new(util.ErrorCollector)
 
-	log.Ctx(r.context).Info().Msg("Closing Router...")
+	log.Ctx(r.context).Trace().Msg("Closing Router...")
 
 	for _, s := range r.subscriptions {
 		errorCollector.Collect(s.Close())

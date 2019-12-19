@@ -38,7 +38,7 @@ func RunTestsWithDockerContainers(m *testing.M, fs ...func(*Docker) (io.Closer, 
 	}
 
 	code := m.Run()
-	log.Logger.Info().Int("code", code).Msg("Ran tests")
+	log.Logger.Trace().Int("code", code).Msg("Ran tests")
 
 	if err := closer.Close(); err != nil {
 		return -1, err

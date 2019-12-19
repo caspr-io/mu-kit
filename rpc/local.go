@@ -13,7 +13,7 @@ import (
 func NewTestServer() (*Server, *grpc.ClientConn, error) {
 	logger := log.Logger.With().Str("component", "rpc").Logger()
 
-	logger.Info().Msg("Initializing test gRPC server...")
+	logger.Trace().Msg("Initializing test gRPC server...")
 
 	listener := bufconn.Listen(10)
 

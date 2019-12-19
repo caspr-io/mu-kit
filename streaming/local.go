@@ -36,7 +36,7 @@ type ChannelMessageHandler struct {
 func (tmh *ChannelMessageHandler) NewMsg() proto.Message { return tmh.newMsg() }
 func (tmh *ChannelMessageHandler) Name() string          { return "ChannelMessageHandler" }
 func (tmh *ChannelMessageHandler) Handle(ctx context.Context, m proto.Message) error {
-	log.Ctx(ctx).Info().Interface("message", m).Send()
+	log.Ctx(ctx).Trace().Interface("message", m).Send()
 	tmh.Received <- m
 
 	return nil

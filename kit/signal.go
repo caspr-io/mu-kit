@@ -18,7 +18,7 @@ func SignalsHandler(closer Closer, logger zerolog.Logger) error {
 
 	go func() {
 		sig := <-sigs
-		logger.Info().Interface("signal", sig).Msg("Received signal, closing")
+		logger.Trace().Interface("signal", sig).Msg("Received signal, closing")
 
 		err := closer.Close()
 		if err != nil {
