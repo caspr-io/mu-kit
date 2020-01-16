@@ -27,7 +27,9 @@ require (
 	github.com/satori/uuid v1.2.0
 	google.golang.org/genproto v0.0.0-20190716160619-c506a9f90610 // indirect
 	google.golang.org/grpc v1.22.0
+	gopkg.in/yaml.v3 v3.0.0-20191120175047-4206685974f2
 	gotest.tools/v3 v3.0.0
+
 	k8s.io/api v0.0.0-20191121015604-11707872ac1c
 	k8s.io/apimachinery v0.0.0-20191123233150-4c4803ed55e3
 	k8s.io/client-go v0.0.0-20191114101336-8cba805ad12d
