@@ -1,8 +1,11 @@
 package docker
 
-import "github.com/ory/dockertest/v3"
+import (
+	"github.com/ory/dockertest/v3"
+	dc "github.com/ory/dockertest/v3/docker"
 
-import "github.com/caspr-io/mu-kit/util"
+	"github.com/caspr-io/mu-kit/util"
+)
 
 type Docker struct {
 	pool       *dockertest.Pool
@@ -25,8 +28,12 @@ func StartDocker() (*Docker, error) {
 }
 
 func (d *Docker) RunContainer(image string, version string, env []string) (*Container, error) {
-	// pulls the postgres image, creates a container based on it and runs it
-	resource, err := d.pool.Run(image, version, env)
+	return d.RunContainerWithOptions(&dockertest.RunOptions{Repository: image, Tag: version, Env: env})
+}
+
+func (d *Docker) RunContainerWithOptions(opts *dockertest.RunOptions, hcOpts ...func(*dc.HostConfig)) (*Container, error) {
+	// pulls the image, creates a container based on it and runs it
+	resource, err := d.pool.RunWithOptions(opts, hcOpts...)
 	if err != nil {
 		return nil, err
 	}
