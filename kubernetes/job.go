@@ -37,21 +37,15 @@ func NewJobSpec(name string, labels map[string]string, containerName string, con
 	return &K8sJob{Name: name, job: j}
 }
 
-//nolint:gofmt
-func (j *K8sJob) AddConfigMapVolume(cm *v1.ConfigMap, containerName string, mountPath string) {
-	j.job.Spec.Template.Spec.Volumes = []v1.Volume{
-		v1.Volume{
-			Name: cm.Name,
-			VolumeSource: v1.VolumeSource{
-				ConfigMap: &v1.ConfigMapVolumeSource{
-					LocalObjectReference: v1.LocalObjectReference{Name: cm.Name},
-				},
-			},
-		},
+func (j *K8sJob) AddAndMountVolume(volume v1.Volume, containerName string, mountPath string) {
+	if j.job.Spec.Template.Spec.Volumes == nil {
+		j.job.Spec.Template.Spec.Volumes = []v1.Volume{}
 	}
 
+	j.job.Spec.Template.Spec.Volumes = append(j.job.Spec.Template.Spec.Volumes, volume)
+
 	vm := v1.VolumeMount{
-		Name:      cm.Name,
+		Name:      volume.Name,
 		MountPath: mountPath,
 	}
 
@@ -63,18 +57,30 @@ func (j *K8sJob) AddConfigMapVolume(cm *v1.ConfigMap, containerName string, moun
 	}
 }
 
-func (j *K8sJob) AddEnvironment(containerName string, env map[string]string) {
-	envVars := []v1.EnvVar{}
-	for k, v := range env {
-		envVars = append(envVars, v1.EnvVar{Name: k, Value: v})
+func (j *K8sJob) AddConfigMapVolume(cm *v1.ConfigMap, containerName string, mountPath string) {
+	v := v1.Volume{
+		Name: cm.Name,
+		VolumeSource: v1.VolumeSource{
+			ConfigMap: &v1.ConfigMapVolumeSource{
+				LocalObjectReference: v1.LocalObjectReference{Name: cm.Name},
+			},
+		},
 	}
 
-	for i, c := range j.job.Spec.Template.Spec.Containers {
-		if c.Name == containerName {
-			c.Env = envVars
-			j.job.Spec.Template.Spec.Containers[i] = c
-		}
+	j.AddAndMountVolume(v, containerName, mountPath)
+}
+
+func (j *K8sJob) AddSecretVolume(sec *v1.Secret, containerName string, mountPath string) {
+	v := v1.Volume{
+		Name: sec.Name,
+		VolumeSource: v1.VolumeSource{
+			Secret: &v1.SecretVolumeSource{
+				SecretName: sec.Name,
+			},
+		},
 	}
+
+	j.AddAndMountVolume(v, containerName, mountPath)
 }
 
 func (j *K8sJob) AddPullSecret(secretName string) {
