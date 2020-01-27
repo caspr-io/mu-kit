@@ -51,7 +51,12 @@ func (j *K8sJob) AddAndMountVolume(volume v1.Volume, containerName string, mount
 
 	for i, c := range j.job.Spec.Template.Spec.Containers {
 		if c.Name == containerName {
-			c.VolumeMounts = []v1.VolumeMount{vm}
+			if c.VolumeMounts == nil {
+				c.VolumeMounts = []v1.VolumeMount{vm}
+			} else {
+				c.VolumeMounts = append(c.VolumeMounts, vm)
+			}
+
 			j.job.Spec.Template.Spec.Containers[i] = c
 		}
 	}
