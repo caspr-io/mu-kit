@@ -88,6 +88,20 @@ func (j *K8sJob) AddSecretVolume(sec *v1.Secret, containerName string, mountPath
 	j.AddAndMountVolume(v, containerName, mountPath)
 }
 
+func (j *K8sJob) AddEnvironment(containerName string, env map[string]string) {
+	envVars := []v1.EnvVar{}
+	for k, v := range env {
+		envVars = append(envVars, v1.EnvVar{Name: k, Value: v})
+	}
+
+	for i, c := range j.job.Spec.Template.Spec.Containers {
+		if c.Name == containerName {
+			c.Env = envVars
+			j.job.Spec.Template.Spec.Containers[i] = c
+		}
+	}
+}
+
 func (j *K8sJob) AddPullSecret(secretName string) {
 	j.job.Spec.Template.Spec.ImagePullSecrets = []v1.LocalObjectReference{{Name: secretName}}
 }
