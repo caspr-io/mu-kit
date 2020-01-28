@@ -24,3 +24,16 @@ func TestSerializeAndDeserializeYaml(t *testing.T) {
 	assert.NilError(t, yamlNew.Scan([]byte(serialized.(string))))
 	assert.DeepEqual(t, &yamlOrig, yamlNew)
 }
+
+func TestYamlDeserializationError(t *testing.T) {
+	brokenYaml := `foo: bar
+faa faz
+kaput: true`
+
+	var yaml *YAML = &YAML{}
+
+	err := yaml.Scan([]byte(brokenYaml))
+	assert.Assert(t, err != nil)
+
+	println(err.Error())
+}
