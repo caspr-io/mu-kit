@@ -28,7 +28,8 @@ func TestSerializeAndDeserializeYaml(t *testing.T) {
 func TestYamlDeserializationError(t *testing.T) {
 	brokenYaml := `foo: bar
 faa faz
-kaput: true`
+kaput: true
+`
 
 	var yaml *YAML = &YAML{}
 
