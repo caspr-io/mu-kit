@@ -63,9 +63,17 @@ func (j *K8sJob) AddAndMountVolume(volume v1.Volume, containerName string, mount
 	}
 }
 
+func mountPathToVolumeName(mountPath string) string {
+	if mountPath[0] == '/' {
+		mountPath = mountPath[1:]
+	}
+
+	return strings.ReplaceAll(mountPath, "/", "-")
+}
+
 func (j *K8sJob) AddConfigMapVolume(cm *v1.ConfigMap, containerName string, mountPath string) {
 	v := v1.Volume{
-		Name: strings.ReplaceAll(mountPath, "/", "-"),
+		Name: mountPathToVolumeName(mountPath),
 		VolumeSource: v1.VolumeSource{
 			ConfigMap: &v1.ConfigMapVolumeSource{
 				LocalObjectReference: v1.LocalObjectReference{Name: cm.Name},
@@ -78,7 +86,7 @@ func (j *K8sJob) AddConfigMapVolume(cm *v1.ConfigMap, containerName string, moun
 
 func (j *K8sJob) AddSecretVolume(sec *v1.Secret, containerName string, mountPath string) {
 	v := v1.Volume{
-		Name: sec.Name,
+		Name: mountPathToVolumeName(mountPath),
 		VolumeSource: v1.VolumeSource{
 			Secret: &v1.SecretVolumeSource{
 				SecretName: sec.Name,
