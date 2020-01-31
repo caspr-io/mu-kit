@@ -4,6 +4,7 @@ import (
 	batchv1 "k8s.io/api/batch/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"strings"
 )
 
 type K8sJob struct {
@@ -64,7 +65,7 @@ func (j *K8sJob) AddAndMountVolume(volume v1.Volume, containerName string, mount
 
 func (j *K8sJob) AddConfigMapVolume(cm *v1.ConfigMap, containerName string, mountPath string) {
 	v := v1.Volume{
-		Name: cm.Name,
+		Name: strings.ReplaceAll(mountPath, "/", "-"),
 		VolumeSource: v1.VolumeSource{
 			ConfigMap: &v1.ConfigMapVolumeSource{
 				LocalObjectReference: v1.LocalObjectReference{Name: cm.Name},
