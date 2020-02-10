@@ -10,13 +10,15 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/keepalive"
 )
 
 type Config struct {
-	Host    string `split_words:"true" required:"false"`
-	Port    int    `split_words:"true" required:"true"`
-	WebHost string `split_words:"true" required:"false"`
-	WebPort int    `split_words:"true" required:"false"`
+	Host                  string        `split_words:"true" required:"false"`
+	Port                  int           `split_words:"true" required:"true"`
+	WebHost               string        `split_words:"true" required:"false"`
+	WebPort               int           `split_words:"true" required:"false"`
+	ConnectionIdleTimeout time.Duration `split_words:"true" required:"false" default:"5"`
 }
 
 type Server struct {
@@ -33,7 +35,11 @@ func NewServer(config *Config) (*Server, error) {
 
 	logger.Info().Interface("config", config).Msg("Initializing gRPC server...")
 
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(
+		grpc.KeepaliveParams(keepalive.ServerParameters{
+			MaxConnectionIdle: config.ConnectionIdleTimeout * time.Minute,
+		}),
+	)
 
 	listener, err := newGrpcListener(config)
 	if err != nil {
