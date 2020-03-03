@@ -1,10 +1,11 @@
 package kubernetes
 
 import (
+	"strings"
+
 	batchv1 "k8s.io/api/batch/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"strings"
 )
 
 type K8sJob struct {
@@ -36,6 +37,10 @@ func NewJobSpec(name string, labels map[string]string, containerName string, con
 	}
 
 	return &K8sJob{Name: name, job: j}
+}
+
+func (j *K8sJob) SetServiceAccountName(serviceAccountName string) {
+	j.job.Spec.Template.Spec.ServiceAccountName = serviceAccountName
 }
 
 func (j *K8sJob) AddAndMountVolume(volume v1.Volume, containerName string, mountPath string) {
