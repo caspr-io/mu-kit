@@ -18,7 +18,7 @@ type Config struct {
 	Port                  int           `split_words:"true" required:"true"`
 	WebHost               string        `split_words:"true" required:"false"`
 	WebPort               int           `split_words:"true" required:"false"`
-	ConnectionIdleTimeout time.Duration `split_words:"true" required:"false" default:"5"`
+	ConnectionIdleTimeout time.Duration `split_words:"true" required:"false" default:"5s"`
 }
 
 type Server struct {
