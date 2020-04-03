@@ -19,6 +19,8 @@ type Config struct {
 	WebHost               string        `split_words:"true" required:"false"`
 	WebPort               int           `split_words:"true" required:"false"`
 	ConnectionIdleTimeout time.Duration `split_words:"true" required:"false" default:"5s"`
+	ReadTimeout           time.Duration `split_words:"true" required:"false" default:"5m"`
+	WriteTimeout          time.Duration `split_words:"true" required:"false" default:"5m"`
 }
 
 type Server struct {
@@ -106,8 +108,8 @@ func newGrpcWebServer(config *Config, grpcServer *grpc.Server) *http.Server {
 	return &http.Server{
 		Addr:           net.JoinHostPort(config.WebHost, strconv.Itoa(config.WebPort)),
 		Handler:        grpcWebHandler,
-		ReadTimeout:    5 * time.Minute,
-		WriteTimeout:   5 * time.Minute,
+		ReadTimeout:    config.ReadTimeout,
+		WriteTimeout:   config.WriteTimeout,
 		MaxHeaderBytes: 1 << 20,
 	}
 }
