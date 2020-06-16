@@ -3,9 +3,11 @@ package streaming
 import (
 	"context"
 
+	"google.golang.org/protobuf/proto"
+
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/caspr-io/mu-kit/util"
-	"github.com/golang/protobuf/proto"
+
 	"github.com/rs/zerolog/log"
 	"github.com/satori/uuid"
 )

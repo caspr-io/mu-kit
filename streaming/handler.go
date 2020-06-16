@@ -3,7 +3,7 @@ package streaming
 import (
 	"context"
 
-	"github.com/golang/protobuf/proto"
+	"google.golang.org/protobuf/proto"
 )
 
 // A MessageHandler can optionally implement io.Closer.
