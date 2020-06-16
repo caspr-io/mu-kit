@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
-	"github.com/golang/protobuf/proto"
 	"github.com/rs/zerolog/log"
+	"google.golang.org/protobuf/proto"
 	"gotest.tools/v3/assert"
 )
 
