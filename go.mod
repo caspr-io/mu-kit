@@ -9,7 +9,7 @@ require (
 	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
 	github.com/go-pg/pg/v9 v9.1.6
 	github.com/golang-migrate/migrate/v4 v4.11.0
-	github.com/golang/protobuf v1.4.2
+	google.golang.org/protobuf v1.24.0 // indirect
 	github.com/google/uuid v1.1.1
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/improbable-eng/grpc-web v0.12.0
