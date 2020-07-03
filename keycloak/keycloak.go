@@ -45,13 +45,13 @@ func ConnectToKeycloak(ctx context.Context, config *KeycloakConfig) (*Keycloak, 
 }
 
 func (kc *Keycloak) NewRealm(realmName string) (string, error) {
-	return kc.Client.CreateRealm(token(kc), gocloak.RealmRepresentation{
+	return kc.Client.CreateRealm(kc.token(), gocloak.RealmRepresentation{
 		Realm: util.StringP(realmName),
 	})
 }
 
 func (kc *Keycloak) ExistsRealm(realmName string) bool {
-	realm, err := kc.Client.GetRealm(token(kc), realmName)
+	realm, err := kc.Client.GetRealm(kc.token(), realmName)
 	if err != nil {
 		return false
 	}
@@ -59,6 +59,6 @@ func (kc *Keycloak) ExistsRealm(realmName string) bool {
 	return realm != nil
 }
 
-func token(kc *Keycloak) string {
+func (kc *Keycloak) token() string {
 	return kc.Jwt.AccessToken
 }
