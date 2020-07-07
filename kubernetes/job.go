@@ -1,6 +1,7 @@
 package kubernetes
 
 import (
+	"context"
 	"strings"
 
 	batchv1 "k8s.io/api/batch/v1"
@@ -120,7 +121,7 @@ func (j *K8sJob) AddPullSecret(secretName string) {
 	j.job.Spec.Template.Spec.ImagePullSecrets = []v1.LocalObjectReference{{Name: secretName}}
 }
 
-func (k8s *K8s) CreateJob(namespace string, jobSpec *K8sJob) error {
-	_, err := k8s.BatchV1().Jobs(namespace).Create(jobSpec.job)
+func (k8s *K8s) CreateJob(ctx context.Context, namespace string, jobSpec *K8sJob) error {
+	_, err := k8s.BatchV1().Jobs(namespace).Create(ctx, jobSpec.job, metav1.CreateOptions{})
 	return err
 }
