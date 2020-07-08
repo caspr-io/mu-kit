@@ -11,3 +11,7 @@ func PString(value *string) string {
 	}
 	return *value
 }
+
+func BoolP(b bool) *bool {
+	return &b
+}
